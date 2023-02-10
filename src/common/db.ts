@@ -22,12 +22,18 @@ function getConnectionParams(): PoolConfig {
 let db: DB;
 
 function getPool(): Pool {
-    if (!db) {
-        const params = getConnectionParams();
-        const pool = new Pool(params);
-        db = { params, pool };
+    try {
+        if (!db) {
+            const params = getConnectionParams();
+            console.log({params});
+            const pool = new Pool(params);
+            db = {params, pool};
+        }
+        return db.pool;
+    } catch (e) {
+        console.error('stoped: ', e)
+        throw new Error('something went wrong');
     }
-    return db.pool;
 }
 
 export type ParamType = string | Number | boolean | null;
