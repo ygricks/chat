@@ -5,9 +5,13 @@ services:
         ports:
             - 5000:5000
         env_file: .env
+        environment:
+            DB_HOST: chat_postgres
         depends_on:
             - db
         container_name: chat_ts
+        networks:
+            - local
     db:
         image: postgres:14.4
         environment:
@@ -20,5 +24,10 @@ services:
             - db-data:/var/lib/postgresql/data
             - ./sql/:/docker-entrypoint-initdb.d
         container_name: chat_postgres
+        networks:
+            - local
 volumes:
     db-data:
+networks:
+    local:
+        driver: bridge
