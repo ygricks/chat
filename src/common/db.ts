@@ -25,7 +25,6 @@ function getPool(): Pool {
     try {
         if (!db) {
             const params = getConnectionParams();
-            console.log({params});
             const pool = new Pool(params);
             db = {params, pool};
         }

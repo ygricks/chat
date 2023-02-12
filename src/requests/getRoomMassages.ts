@@ -9,5 +9,5 @@ export async function getRoomMassages(
         query: { id }
     } = request;
     const data = await query('SELECT * FROM mess LIMIT 10');
-    return response.json({ data });
+    return response.json(data);
 }

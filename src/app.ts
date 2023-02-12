@@ -1,18 +1,19 @@
 import express from 'express';
 import { config } from 'dotenv';
-// import { getById } from './db';
-import { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { safeCall } from './common';
 import { getInfo, getRoomMassages } from './requests';
+import { getRoom } from "./requests/getRoom";
 
 config();
 
-var app = express();
+const app = express();
 
 app.use(bodyParser.json());
+app.use(express.static('public'))
 
-app.get('/room/:id', safeCall(getRoomMassages));
+app.get('/api/room/:id', safeCall(getRoomMassages));
+app.get('/room/:id', safeCall(getRoom));
 app.get('/', safeCall(getInfo));
 
 const PORT = Number(process.env.PORT) || 3000;
