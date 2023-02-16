@@ -6,23 +6,16 @@ function uuidv4() {
     );
 }
 
-function template(template_name) {
-    let template = document.querySelectorAll(`[name="${template_name}"]`);
-    if(!template.length) {
-        console.error(`can't find template [name="${template_name}"]`);
-        return;
+function coverMessage(message) {
+    const div = document.createElement('div');
+    const classes = ['mess'];
+    if(author===message.author) {
+        classes.push('me');
     }
-    let _html = template[0].innerHTML;
-    let template_function = function(data) {
-        let html = _html;
-        let keys = Object.keys(data);
-        for(let key of keys) {
-            var re = new RegExp(`{${key}}`, "g");
-            html = html.replace(re, data[key]);
-        }
-        return html;
-    };
-    return template_function;
+    div.classList.add(...classes);
+    div.dataset.id = message.id;
+    div.textContent = message.mess;
+    return div;
 }
 
 async function getMessages(roomId) {
@@ -42,9 +35,9 @@ async function postMessage() {
 
     const tempId = uuidv4();
 
-    const mess = renderMess({ id:tempId, mess: message, me:'me' });
-    history.innerHTML = history.innerHTML + mess;
-    const element = document.querySelectorAll(`[data-id="${tempId}"]`)[0];
+    const messElement = coverMessage({ id:tempId, mess: message, author });
+
+    history.appendChild(messElement);
 
     fetch(`/api/room/${roomId}`, {
         method: 'POST', // or 'PUT'
@@ -55,12 +48,12 @@ async function postMessage() {
     })
     .then((response) => response.json())
     .then((response) => {
-        element.setAttribute('data-id', response.id);
-        element.scrollIntoView();
+        messElement.dataset.id = response.id;
+        messElement.scrollIntoView();
         input.value = '';
     })
     .catch((error) => {
-        element.remove();
+        messElement.remove()
         input.value = message;
         console.error('Error:', error);
     });
@@ -85,16 +78,17 @@ async function start() {
         throw new Error(`Invalid roomId: ${roomId}`);
     }
     registerAuthor();
-    renderMess = template('messTemplate');
     history = document.getElementsByClassName('chat-history')[0];
     input = document.getElementsByClassName('chat-input')[0];
 
     const messages = await getMessages(roomId);
-    messages.map((mess, key) => {
-        messages[key] = renderMess({id:mess.id, mess: mess.mess, me:mess.author===author?'me':''});
-    });
-    const splitMess = messages.join('');
-    history.innerHTML = history.innerHTML + splitMess;
+    let lastMessage;
+    for(const message of messages) {
+        const messElement = coverMessage(message);
+        history.appendChild(messElement);
+        lastMessage = messElement;
+    }
+    lastMessage.scrollIntoView();
 
     document.addEventListener('keyup',(e)=>{
         if(e.key === 'Enter' && e.target === input && input.value.length) {
