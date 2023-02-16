@@ -26,18 +26,17 @@ function getPool(): Pool {
         if (!db) {
             const params = getConnectionParams();
             const pool = new Pool(params);
-            db = {params, pool};
+            db = { params, pool };
         }
         return db.pool;
     } catch (e) {
-        console.error('stoped: ', e)
+        console.error('stoped: ', e);
         throw new Error('something went wrong');
     }
 }
 
 export type ParamType = string | Number | boolean | null;
 export type GenerycParams = Record<string, ParamType>;
-
 
 export async function query<Type>(
     sql: string,
