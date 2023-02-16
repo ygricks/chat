@@ -7,7 +7,8 @@ CREATE TABLE mess (
 	id bigserial PRIMARY KEY,
 	room_id bigint NOT NULL,
 	author VARCHAR(50) NOT NULL,
-	mess VARCHAR(500)
+	mess VARCHAR(500),
+	CONSTRAINT fk_mess_room FOREIGN KEY(room_id) REFERENCES rooms(id)
 );
 
 INSERT INTO rooms(title) VALUES
