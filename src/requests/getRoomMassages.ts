@@ -8,6 +8,6 @@ export async function getRoomMassages(
     const {
         query: { id }
     } = request;
-    const data = await query('SELECT * FROM mess LIMIT 10');
+    const data = await query('SELECT * FROM mess LIMIT 40');
     return response.json(data);
 }

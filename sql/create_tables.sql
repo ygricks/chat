@@ -10,12 +10,12 @@ CREATE TABLE mess (
 	mess VARCHAR(500)
 );
 
-INSERT INTO rooms(id, title) VALUES
-(1, 'first chat room');
+INSERT INTO rooms(title) VALUES
+('first chat room');
 
-INSERT INTO mess(id, room_id, author, mess) VALUES
-(1, 1, 'igor', 'hai macar sa lucreze'),
-(2, 1, 'iura', 'un chat poti sal disvolti pina la infinit'),
-(3, 1, 'iura', 'si pin poti sa faci'),
-(4, 1, 'iura', 'si forward'),
-(5, 1, 'igor', 'macar sa lucreze');
+INSERT INTO mess(room_id, author, mess) VALUES
+(1, 'igor', 'hai macar sa lucreze'),
+(1, 'iura', 'un chat poti sal disvolti pina la infinit'),
+(1, 'iura', 'si pin poti sa faci'),
+(1, 'iura', 'si forward'),
+(1, 'igor', 'macar sa lucreze');

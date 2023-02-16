@@ -60,6 +60,10 @@ html, body{
 
     background: #00c9ff;
     color: white;
+    cursor: pointer;
+}
+.chat-send:hover {
+    background-color: #00b3e3;
 }
 .chat-line, .chat-input, .chat-send {
     border-radius: 3px;
@@ -71,6 +75,9 @@ html, body{
 
     padding: 5px 10px;
     overflow: auto;
+
+    overflow-y: auto;
+    max-height: 500px;
 }
 
 .mess {
