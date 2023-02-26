@@ -7,19 +7,22 @@ export async function postMessage(
 ): Promise<Response> {
     const {
         params: { id: roomId },
-        body: { message, author }
+        body: { message }
     } = request;
 
-    const id = await insert('mess', { room_id: roomId, mess: message, author });
-    const mess = await queryOne(`SELECT * FROM mess WHERE id=$1 order by id`, [
-        id
-    ]);
+    const userId = request.body.user.id;
 
-    // fake massege register
-    // function randomIntFromInterval(min:number, max:number):number { // min and max included
-    //     return Math.floor(Math.random() * (max - min) + min)
-    // }
-    // const id = randomIntFromInterval(7,200);
+    const data = {
+        room_id: roomId,
+        created_by: userId,
+        mess: message
+    };
+
+    const id = await insert('mess', data);
+    const mess = await queryOne(
+        `SELECT mt.id, mt.created_at, mt.mess, ut.name, mt.created_by=$1 AS author FROM mess AS mt LEFT JOIN users AS ut ON ut.id=mt.created_by WHERE mt.id=$2`,
+        [request.body.user.id, id]
+    );
 
     return response.json(mess);
 }

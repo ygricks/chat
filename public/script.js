@@ -10,7 +10,7 @@ function uuidv4() {
 function coverMessage(message) {
     const div = document.createElement('div');
     const classes = ['mess'];
-    if (author === message.author) {
+    if (message.author === true) {
         classes.push('me');
     }
     div.classList.add(...classes);
@@ -33,14 +33,18 @@ async function getMessages(roomId) {
 async function postMessage() {
     const tempId = uuidv4();
     const message = input.value;
-    const messElement = coverMessage({ id: tempId, mess: message, author });
+    const messElement = coverMessage({
+        id: tempId,
+        mess: message,
+        author: true
+    });
     history.appendChild(messElement);
     fetch(`/api/room/${roomId}`, {
-        method: 'POST', // or 'PUT'
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, author })
+        body: JSON.stringify({ message })
     })
         .then((response) => response.json())
         .then((response) => {
@@ -55,24 +59,15 @@ async function postMessage() {
         });
 }
 
-function registerAuthor() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    author = urlParams.get('author') || 'bot';
-    console.log({ author });
-}
-
 let input;
 let roomId;
 let history;
-let author;
 
 async function start() {
     roomId = parseInt(window.location.pathname.split('/').pop());
     if (roomId < 1) {
         throw new Error(`Invalid roomId: ${roomId}`);
     }
-    registerAuthor();
     history = document.getElementsByClassName('chat-history')[0];
     input = document.getElementsByClassName('chat-input')[0];
 

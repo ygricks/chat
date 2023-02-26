@@ -104,3 +104,25 @@ export async function insert(
     });
     return promise;
 }
+
+export async function update(
+    table: string,
+    params: GenerycParams,
+    id: Number
+): Promise<QueryResult<any>> {
+    const { update, values } = prepare(params);
+    values.push(id);
+    const sql = `UPDATE ${table} SET ${update.join(', ')} WHERE id=$${
+        values.length
+    };`;
+    return getPool().query(sql, values);
+}
+
+export async function remove(
+    table: string,
+    criteria: GenerycParams
+): Promise<QueryResult<any>> {
+    const { update, values } = prepare(criteria);
+    const sql = `DELETE FROM ${table} WHERE ${update.join(', ')};`;
+    return getPool().query(sql, values);
+}

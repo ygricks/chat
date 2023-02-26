@@ -5,6 +5,9 @@ import { safeCall } from './common';
 import { getInfo, getRoomMassages } from './requests';
 import { getRoom } from './requests/getRoom';
 import { postMessage } from './requests/postMessege';
+import { postLogin } from './requests/postLogin';
+import cookieParser from 'cookie-parser';
+import { isAuthorized } from './common/auth';
 
 config();
 
@@ -12,11 +15,15 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
+app.use(cookieParser());
 
-app.get('/api/room/:id', safeCall(getRoomMassages));
-app.get('/room/:id', safeCall(getRoom));
 app.get('/', safeCall(getInfo));
-app.post('/api/room/:id', safeCall(postMessage));
+app.post('/api/login', safeCall(postLogin));
+
+app.get('/room/:id', isAuthorized, safeCall(getRoom));
+app.post('/room/:id', isAuthorized, safeCall(getRoom));
+app.get('/api/room/:id', isAuthorized, safeCall(getRoomMassages));
+app.post('/api/room/:id', isAuthorized, safeCall(postMessage));
 
 const PORT = Number(process.env.PORT) || 5000;
 app.listen(PORT, async () => {
