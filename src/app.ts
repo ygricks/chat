@@ -7,8 +7,10 @@ import { getRoom } from './requests/getRoom';
 import { postMessage } from './requests/postMessege';
 import { postLogin } from './requests/postLogin';
 import cookieParser from 'cookie-parser';
-import { isAuthorized } from './common/auth';
 import { getRooms, getRoomsPage } from './requests/getRooms';
+// import { hashSync } from 'bcryptjs';
+// import {Request, Response} from 'express';
+import { isAuthorized } from './common/login';
 
 config();
 
@@ -27,6 +29,14 @@ app.get('/room/:id', isAuthorized, safeCall(getRoom));
 app.post('/room/:id', isAuthorized, safeCall(getRoom));
 app.get('/api/room/:id', isAuthorized, safeCall(getRoomMassages));
 app.post('/api/room/:id', isAuthorized, safeCall(postMessage));
+
+// @TODO remove
+// app.get('/sign', safeCall(async function getRoom(
+//     request: Request,
+//     response: Response
+// ): Promise<Response> {
+//     return response.send({hashedPassword:hashSync('123', 10)});
+// }));
 
 const PORT = Number(process.env.PORT) || 5000;
 app.listen(PORT, async () => {

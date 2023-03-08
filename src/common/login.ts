@@ -1,32 +1,73 @@
-import { insert, remove, queryOne } from './db';
-import { Md5 } from 'ts-md5';
-// import { getCookie, setCookie, removeCookie } from 'typescript-cookie'
-import { ICookies } from '../interfaces';
-import { v4 as uuidv4 } from 'uuid';
-import { IUser, ISession } from '../interfaces';
+import { queryOne } from './db';
+import { IUser } from '../interfaces';
+import { NextFunction, Request, Response } from 'express';
+import { compareSync } from 'bcryptjs';
+import { sign, verify } from 'jsonwebtoken';
+
+export class Cookies {
+    constructor(private request: Request, private response: Response) {}
+    set(name: string, value: string): void {
+        this.response.cookie(name, value, { httpOnly: true });
+    }
+    get(name: string): string | undefined {
+        try {
+            return this.request.cookies[name];
+        } catch (_) {
+            return undefined;
+        }
+    }
+}
 
 export async function login(
-    cookies: ICookies,
-    name: string,
-    password: string
+    request: Request,
+    response: Response
 ): Promise<boolean> {
-    const pass = Md5.hashStr(Md5.hashStr(password) + process.env.HASH);
-
-    const user = await queryOne<IUser>(
-        `SELECT * FROM users WHERE name=$1 and password=$2`,
-        [name, pass]
-    );
-
-    if (!user) {
+    const {
+        body: { username, password }
+    } = request;
+    const user = await queryOne<IUser>(`SELECT * FROM users WHERE name=$1;`, [
+        username
+    ]);
+    if (!user || !compareSync(password, user.password)) {
         return Promise.resolve(false);
     }
-
-    await remove('sessions', { user_id: user.id });
-
-    const hash = uuidv4();
-    await insert('sessions', { user_id: user.id, hash });
-
-    cookies.set('SESSID', hash);
-
+    const secret = String(process.env.HASH);
+    const publicUser = Object.assign({}, user) as Partial<IUser>;
+    delete publicUser.password;
+    const jwtToken = sign(publicUser, secret, {
+        expiresIn: 86400
+    });
+    const cookies = new Cookies(request, response);
+    cookies.set('TOKEN', jwtToken);
     return Promise.resolve(true);
+}
+export function isAuthorized(
+    request: Request,
+    response: Response,
+    next: NextFunction
+) {
+    const cookies = new Cookies(request, response);
+    const jwtToken = String(cookies.get('TOKEN'));
+    const secret = String(process.env.HASH);
+    verify(jwtToken, secret, (err, publicUser) => {
+        if (err) {
+            response.redirect('/login.html');
+            return next(new Error('Access Denied'));
+        }
+        request.body.user = publicUser;
+        next();
+    });
+}
+
+export async function UnauthorizedError(
+    response: Response,
+    data: object = {}
+): Promise<Response> {
+    return new Promise((resolve) =>
+        setTimeout(
+            resolve,
+            500 + Math.random() * 500,
+            response.status(401).json(data)
+        )
+    );
 }

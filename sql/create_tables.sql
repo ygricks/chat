@@ -8,19 +8,14 @@
 -- \c - connect to db
 -- \dt - show tables
 
+-- --------------
+-- tables
+-- --------------
+
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    password VARCHAR(50) NOt NULL
-);
-
-CREATE TABLE sessions (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    hash VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    expired_at TIMESTAMP DEFAULT now() + '10 day'::interval,
-	CONSTRAINT fk_session_user FOREIGN KEY(user_id) REFERENCES users(id)
+    password VARCHAR(70) NOt NULL
 );
 
 CREATE TABLE rooms (
@@ -45,9 +40,8 @@ CREATE TABLE mess (
 -- --------------
 
 INSERT INTO users(name, password) VALUES
-('igor', '71d29208b165bbb80ddacc6cca73262c'),
-('iura', '71d29208b165bbb80ddacc6cca73262c');
--- password - md5< md5<123> + HASH >
+('igor', '$2a$10$LLRgDiWSP4iePSrLqOVFke5U7x0TVcBhaQb/jPh9XdsJnat7BhWiO'),
+('iura', '$2a$10$.0PW9BTyDfSxNt96SBP/weJ46jo.zYvsGg0chO644Jr737h8bWJpG');
 
 INSERT INTO rooms(title, created_by) VALUES
 ('first chat room', 1);
