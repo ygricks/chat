@@ -10,6 +10,7 @@
         "prettier": "prettier --check \"src/**/*.ts\"",
         "prettier:fix": "prettier --config .prettierrc 'src/**/*.ts' --write",
         "prettier:fix:js": "prettier --config .prettierrc 'public/**/*.js' --write",
+        "prettier:fix:html": "prettier --config .prettierrc 'public/**/*.html' --write",
         "prettier:watch": "onchange 'src/**/*.ts' -- prettier --write {{changed}}"
     },
     "keywords": [],

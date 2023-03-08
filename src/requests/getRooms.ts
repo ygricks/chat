@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { query } from '../common';
 
-export async function getRooms(
+export async function getRoomsPage(
     request: Request,
     response: Response
 ): Promise<Response> {
@@ -11,4 +12,12 @@ export async function getRooms(
         'utf-8'
     );
     return response.send(result);
+}
+
+export async function getRooms(
+    request: Request,
+    response: Response
+): Promise<Response> {
+    const data = await query('SELECT * FROM rooms LIMIT 40');
+    return response.json(data);
 }

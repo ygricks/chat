@@ -1,10 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-  <div style="font-size: 50px;">There will be implementing rooms visualization.</div>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Title</title>
+        <style>
+            a {
+                color: lightblue;
+            }
+        </style>
+    </head>
+    <body style="background: darkslategrey; color: lightblue">
+        <h2>Rooms:</h2>
+        <ul id="rooms_list"></ul>
+        <script>
+            async function getRooms(roomId) {
+                const response = await fetch(`/api/rooms`);
+                if (!response.ok) {
+                    const message = `An error has occured: ${response.status}`;
+                    throw new Error(message);
+                }
+                const data = await response.json();
+                return data;
+            }
+            function coverRoom(room) {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `/room/${room.id}`;
+                a.textContent = `${room.id}: ${room.title}`;
+                li.appendChild(a);
+                return li;
+            }
+            async function start() {
+                const roomsElement = document.getElementById('rooms_list');
+                const rooms = await getRooms();
+                for (const room of rooms) {
+                    const roomElement = coverRoom(room);
+                    roomsElement.appendChild(roomElement);
+                }
+            }
+            document.addEventListener('DOMContentLoaded', start);
+        </script>
+    </body>
 </html>

@@ -8,7 +8,7 @@ import { postMessage } from './requests/postMessege';
 import { postLogin } from './requests/postLogin';
 import cookieParser from 'cookie-parser';
 import { isAuthorized } from './common/auth';
-import {getRooms} from "./requests/getRooms";
+import { getRooms, getRoomsPage } from './requests/getRooms';
 
 config();
 
@@ -21,7 +21,8 @@ app.use(cookieParser());
 app.get('/', safeCall(getInfo));
 app.post('/api/login', safeCall(postLogin));
 
-app.get('/rooms', isAuthorized, safeCall(getRooms));
+app.get('/rooms', isAuthorized, safeCall(getRoomsPage));
+app.get('/api/rooms', isAuthorized, safeCall(getRooms));
 app.get('/room/:id', isAuthorized, safeCall(getRoom));
 app.post('/room/:id', isAuthorized, safeCall(getRoom));
 app.get('/api/room/:id', isAuthorized, safeCall(getRoomMassages));

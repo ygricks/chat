@@ -1,91 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        html, body {
-            height: 100%;
-        }
-        body {
-            margin: 0;
-        }
-        .flex-container {
-            height: 100%;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .row {
-            width: auto;
-            border: 1px solid white;
-        }
-        .flex-item {
-            margin: 10px;
-            line-height: 20px;
-            color: white;
-            font-weight: bold;
-            font-size: 2em;
-            text-align: center;
-        }
-    </style>
-</head>
-<body style="background: darkslategrey; color: lightblue;">
-<div class="flex-container">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Login</title>
+        <style>
+            html,
+            body {
+                height: 100%;
+            }
+            body {
+                margin: 0;
+            }
+            .flex-container {
+                height: 100%;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .row {
+                width: auto;
+                border: 1px solid white;
+            }
+            .flex-item {
+                margin: 10px;
+                line-height: 20px;
+                color: white;
+                font-weight: bold;
+                font-size: 2em;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body style="background: darkslategrey; color: lightblue">
+        <div class="flex-container">
+            <form id="loginform" class="row" action="/api/login" method="post">
+                <div class="flex-item">
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="username"
+                        value="igor"
+                    /><br />
+                    <input
+                        type="text"
+                        name="password"
+                        placeholder="password"
+                        value="123"
+                    /><br />
+                    <input id="signin" type="button" value="sign in" />
+                </div>
+            </form>
+            <!--        <div class="flex-item">2</div>-->
+            <!--        <div class="flex-item">3</div>-->
+            <!--        <div class="flex-item">4</div>-->
 
-    <form id="loginform" class="row" action="/api/login" method="post">
-        <div class="flex-item">
-            <input type="text" name="username" placeholder="username" value="igor"><br>
-            <input type="text" name="password" placeholder="password" value="123"><br>
-            <input id="signin" type="button" value="sign in">
-        </div>
-    </form>
-    <!--        <div class="flex-item">2</div>-->
-    <!--        <div class="flex-item">3</div>-->
-    <!--        <div class="flex-item">4</div>-->
-
-    <script>
-        const start = function() {
-            var serializeForm = function (form) {
-                var obj = {};
-                var formData = new FormData(form);
-                for (var key of formData.keys()) {
-                    obj[key] = formData.get(key);
-                }
-                return obj;
-            };
-
-            const button = document.getElementById('signin');
-            const form = document.getElementById('loginform');
-
-            button.addEventListener('click', () => {
-                const data = serializeForm(form);
-                fetch(`/api/login`, {
-                    method: 'POST', // or 'PUT'
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                    .then((response) => response.json())
-                    .then((response) => {
-                        if(response.done === true) {
-                            // @TODO redirect to /rooms when will be implemented by Iura
-                            window.location.href = '/room/1';
+            <script>
+                const start = function () {
+                    var serializeForm = function (form) {
+                        var obj = {};
+                        var formData = new FormData(form);
+                        for (var key of formData.keys()) {
+                            obj[key] = formData.get(key);
                         }
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
+                        return obj;
+                    };
+
+                    const button = document.getElementById('signin');
+                    const form = document.getElementById('loginform');
+
+                    button.addEventListener('click', () => {
+                        const data = serializeForm(form);
+                        fetch(`/api/login`, {
+                            method: 'POST', // or 'PUT'
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                            .then((response) => response.json())
+                            .then((response) => {
+                                if (response.done === true) {
+                                    window.location.href = '/rooms';
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error:', error);
+                            });
                     });
-            })
-        }
+                };
 
-        document.addEventListener('DOMContentLoaded', start);
-
-    </script>
-
-</div>
-</body>
+                document.addEventListener('DOMContentLoaded', start);
+            </script>
+        </div>
+    </body>
 </html>
