@@ -3,11 +3,11 @@ import { config } from 'dotenv';
 import bodyParser from 'body-parser';
 import { safeCall } from './common';
 import { getInfo, getRoomMassages } from './requests';
-import { getRoom } from './requests/getRoom';
+// import { getRoom } from './requests/getRoom';
 import { postMessage } from './requests/postMessege';
 import { postLogin } from './requests/postLogin';
 import cookieParser from 'cookie-parser';
-import { getRooms, getRoomsPage } from './requests/getRooms';
+import { getRoom, rooms, getRoomsPage } from './requests/rooms';
 // import { hashSync } from 'bcryptjs';
 // import {Request, Response} from 'express';
 import { isAuthorized } from './common/login';
@@ -24,9 +24,8 @@ app.get('/', safeCall(getInfo));
 app.post('/api/login', safeCall(postLogin));
 
 app.get('/rooms', isAuthorized, safeCall(getRoomsPage));
-app.get('/api/rooms', isAuthorized, safeCall(getRooms));
+app.get('/api/rooms', isAuthorized, safeCall(rooms));
 app.get('/room/:id', isAuthorized, safeCall(getRoom));
-app.post('/room/:id', isAuthorized, safeCall(getRoom));
 app.get('/api/room/:id', isAuthorized, safeCall(getRoomMassages));
 app.post('/api/room/:id', isAuthorized, safeCall(postMessage));
 
