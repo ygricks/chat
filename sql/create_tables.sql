@@ -35,6 +35,16 @@ CREATE TABLE mess (
 	CONSTRAINT fk_mess_user FOREIGN KEY(created_by) REFERENCES users(id)
 );
 
+CREATE TABLE room_owner
+(
+    room_id BIGINT  NOT NULL,
+    user_id BIGINT  NOT NULL,
+    owner   BOOLEAN NOT NULL,
+    CONSTRAINT fk_room_owner_room FOREIGN KEY (room_id) REFERENCES rooms (id),
+    CONSTRAINT fk_room_owner_user FOREIGN KEY (user_id) REFERENCES users (id),
+    PRIMARY KEY (room_id, user_id)
+);
+
 -- --------------
 -- importing data
 -- --------------
@@ -52,3 +62,7 @@ INSERT INTO mess(room_id, created_by, mess) VALUES
 (1, 2, 'si pin poti sa faci'),
 (1, 2, 'si forward'),
 (1, 1, 'macar sa lucreze');
+
+INSERT INTO room_owner VALUES
+(1,1,TRUE),
+(1,2,FALSE);
