@@ -13,7 +13,7 @@
         <h2>Rooms:</h2>
         <ul id="rooms_list"></ul>
         <script>
-            async function getRooms(roomId) {
+            async function rooms(roomId) {
                 const response = await fetch(`/api/rooms`);
                 if (!response.ok) {
                     const message = `An error has occured: ${response.status}`;
