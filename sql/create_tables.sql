@@ -1,14 +1,4 @@
 -- --------------
--- commands
--- --------------
-
--- docker exec -it chat_postgres bash - login container with db
--- psql -U postgres - login postgres
--- \l - show databases
--- \c - connect to db
--- \dt - show tables
-
--- --------------
 -- tables
 -- --------------
 

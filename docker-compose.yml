@@ -1,17 +1,4 @@
-version: '3.8'
 services:
-    app:
-        build: .
-        ports:
-            - 5000:5000
-        env_file: .env
-        environment:
-            DB_HOST: chat_postgres
-        depends_on:
-            - db
-        container_name: chat_ts
-        networks:
-            - local
     db:
         image: postgres:14.4
         environment:
@@ -19,11 +6,23 @@ services:
             POSTGRES_PASSWORD: superpass
             POSTGRES_DB: chat_db
         ports:
-            - 5488:5432
+            - 5432:5432
         volumes:
             - db-data:/tmp/chat
             - ./sql/:/docker-entrypoint-initdb.d
         container_name: chat_postgres
+        networks:
+            - local
+    app:
+        build: .
+        ports:
+            - 5000:5000
+        env_file: .env
+        environment:
+            DB_HOST: db
+        depends_on:
+            - db
+        container_name: chat_ts
         networks:
             - local
 volumes:
