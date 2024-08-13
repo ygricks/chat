@@ -81,6 +81,7 @@ html, body{
 }
 
 .mess {
+    position: relative;
     border: 1px solid blue;
     background: lightblue;
     padding: 8px;
@@ -93,7 +94,13 @@ html, body{
     border-color: red;
     align-self: flex-end;
 }
-
 .mess:nth-child(n + 2) {
     margin-top: 10px;
+}
+.mess>span{
+    color: grey;
+    font-size: 12px;
+    position: absolute;
+    bottom: 1px;
+    right: 13px;
 }

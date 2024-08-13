@@ -16,6 +16,10 @@ function coverMessage(message) {
     div.classList.add(...classes);
     div.dataset.id = message.id;
     div.textContent = message.mess;
+    const span = document.createElement('span');
+    const dt = new Date(message.created_at);
+    span.textContent = dt.getHours() + ':' + dt.getMinutes();
+    div.appendChild(span);
     return div;
 }
 
