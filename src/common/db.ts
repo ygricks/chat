@@ -44,7 +44,7 @@ export async function query<Type>(
 ): Promise<Type[]> {
     try {
         const response = await getPool().query(sql, params);
-        return response.rows as Type[];
+        return Promise.resolve(response.rows as Type[]);
     } catch (error) {
         const message = `Error SQL calling [${sql}]`;
         console.error(message, error);
@@ -57,7 +57,7 @@ export async function queryOne<T>(
     params: ParamType[] = []
 ): Promise<T> {
     const response = await query<T>(sql, params);
-    return response.pop() as T;
+    return Promise.resolve(response.pop() as T);
 }
 
 function prepare(params: GenerycParams) {

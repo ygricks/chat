@@ -15,6 +15,16 @@ CREATE TABLE rooms (
 	CONSTRAINT fk_room_user FOREIGN KEY(created_by) REFERENCES users(id)
 );
 
+CREATE TABLE seats (
+	id BIGSERIAL PRIMARY KEY,
+	room_id BIGINT NOT NULL,
+	user_id BIGINT NOT NULL,
+	created_at TIMESTAMP DEFAULT NOW(),
+	author BOOLEAN NOT NULL DEFAULT FALSE,
+	CONSTRAINT fk_seat_room FOREIGN KEY(room_id) REFERENCES rooms(id),
+	CONSTRAINT fk_seat_user FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 CREATE TABLE mess (
 	id BIGSERIAL PRIMARY KEY,
 	room_id BIGINT NOT NULL,
@@ -34,7 +44,14 @@ INSERT INTO users(name, password) VALUES
 ('iura', '$2a$10$.0PW9BTyDfSxNt96SBP/weJ46jo.zYvsGg0chO644Jr737h8bWJpG');
 
 INSERT INTO rooms(title, created_by) VALUES
-('first chat room', 1);
+('first chat room', 1),
+('second room', 2);
+
+INSERT INTO seats(room_id, user_id, author) VALUES
+(1, 1, 't'),
+(1, 2, 'f'),
+(2, 2, 't'),
+(2, 1, 'f');
 
 INSERT INTO mess(room_id, created_by, mess) VALUES
 (1, 1, 'hai macar sa lucreze'),
@@ -62,4 +79,11 @@ INSERT INTO mess(room_id, created_by, mess) VALUES
 (1, 1, 'Răsări-va o comoară '),
 (1, 1, 'În adîncuri înfundată,'),
 (1, 1, 'Un şirag de piatră rară'),
-(1, 1, 'Pe moşie revărsată.');
+(1, 1, 'Pe moşie revărsată.'),
+(1, 2, '---'),
+
+(2, 2, 'tuk tuk!'),
+(2, 1, 'who is there ?'),
+(2, 2, 'me'),
+(2, 1, 'me who ?')
+(2, 2, 'you');

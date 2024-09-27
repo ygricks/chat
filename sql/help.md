@@ -23,9 +23,19 @@ psql -U postgres - login postgres
 ```
 
 
-### Reach psql from app container
+### Reach psql
+
+#### from app container
+
 ```sh
 docker exec -it chat_ts /bin/ash
 apk --update add postgresql-client
+psql -h db -p 5432 -d chat_db -U postgres
+```
+
+#### from postgres container
+
+```sh
+docker exec -it chat_postgres bash
 psql -h db -p 5432 -d chat_db -U postgres
 ```

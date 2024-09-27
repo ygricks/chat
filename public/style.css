@@ -4,10 +4,25 @@
     box-sizing: border-box;
 }
 html, body{
-    height:calc(100% - 20px);
-    padding:10px;
-    background-color: cadetblue;
+    height: calc(100% - 20px);
+    padding: 10px;
 }
+body {
+    background:
+        radial-gradient(black 15%, transparent 16%) 0 0,
+        radial-gradient(black 15%, transparent 16%) 8px 8px,
+        radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+        radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+    background-color: #282828;
+    background-size: 16px 16px;
+    color: white;
+}
+
+a {
+    color: lightblue;
+}
+
+/* chat page */
 
 .chat {
     margin: 0 auto;
@@ -17,7 +32,8 @@ html, body{
     flex-wrap: nowrap;
     align-items: stretch;
     padding: 10px;
-    background: gray;
+    background: lightslategray;
+    color: black;
 
     border: 1px solid black;
     flex-direction: column;
@@ -39,17 +55,17 @@ html, body{
     column-gap: 10px;
 }
 
-.chat-input {
+#chat-input {
     flex-grow: 1;
     flex-shrink: 1;
     padding-left: 5px;
 }
 
-.chat-input:focus {
+#chat-input:focus {
     outline: none;
 }
 
-.chat-send {
+#chat-send {
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -62,14 +78,14 @@ html, body{
     color: white;
     cursor: pointer;
 }
-.chat-send:hover {
+#chat-send:hover {
     background-color: #00b3e3;
 }
-.chat-line, .chat-input, .chat-send {
+.chat-line, #chat-input, #chat-send {
     border-radius: 3px;
 }
 
-.chat-history {
+#chat-history {
     display: flex;
     flex-direction: column;
 
@@ -103,4 +119,56 @@ html, body{
     position: absolute;
     bottom: 1px;
     right: 13px;
+}
+
+/* login page */
+
+#loginform {
+    margin: 0;
+    padding: 0;
+}
+.flex-container {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.flex-row {
+    width: auto;
+    border: 1px solid white;
+}
+.flex-item {
+    padding: 10px;
+    line-height: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 2em;
+    text-align: center;
+    background: lightslategray;
+}
+
+ul#rooms_list {
+    font-family: monospace;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* actions */
+.action_create {
+    color: green;
+}
+.action_quit {
+    color: yellow;
+}
+.action_remove {
+    color: red;
+}
+
+.action_create, .action_quit, .action_remove {
+    cursor: pointer;
+    font-size: 16px;
 }

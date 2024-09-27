@@ -6,7 +6,7 @@
     "scripts": {
         "build": "tsc",
         "start": "node dist/app.js",
-        "start:dev": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec ts-node src/app.ts --ignore '*.test.ts'",
+        "start:dev": "TZ=UTC nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec ts-node src/app.ts --ignore '*.test.ts'",
         "prettier": "prettier --check \"src/**/*.ts\"",
         "prettier:fix": "npm run prettier:fix:ts && npm run prettier:fix:js && npm run prettier:fix:html",
         "prettier:fix:ts": "prettier --config .prettierrc 'src/**/*.ts' --write",
@@ -35,6 +35,7 @@
         "cookie-parser": "^1.4.6",
         "dotenv": "^16.0.1",
         "express": "^4.18.1",
+        "js-event-bus": "^1.1.1",
         "jsonwebtoken": "^9.0.0",
         "pg": "^8.12.0"
     }

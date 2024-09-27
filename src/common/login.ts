@@ -35,7 +35,8 @@ export async function login(
     const publicUser = Object.assign({}, user) as Partial<IUser>;
     delete publicUser.password;
     const jwtToken = sign(publicUser, secret, {
-        expiresIn: 86400
+        // expressed in seconds ( 86400 = 24H )
+        expiresIn: 86400 * 7
     });
     const cookies = new Cookies(request, response);
     cookies.set('TOKEN', jwtToken);
@@ -51,7 +52,7 @@ export function isAuthorized(
     const secret = String(process.env.HASH);
     verify(jwtToken, secret, (err, publicUser) => {
         if (err) {
-            response.redirect('/login.html');
+            response.redirect('/login');
             return next(new Error('Access Denied'));
         }
         request.body.user = publicUser;

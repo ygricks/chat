@@ -1,5 +1,8 @@
 import { Request, Response, RequestHandler } from 'express';
 
+const Reset = "\x1b[0m";
+const FgCyan = "\x1b[36m";
+
 export function safeCall(funct: RequestHandler): RequestHandler {
     return async (
         request: Request,
@@ -7,7 +10,7 @@ export function safeCall(funct: RequestHandler): RequestHandler {
         next: (error: any) => void
     ): Promise<any> => {
         try {
-            console.log(`\x1b[36m> ${funct.name}`);
+            console.log(`${FgCyan}> ${funct.name}${Reset}`);
             await funct(request, response, next);
         } catch (err) {
             const error = err as { message: string };
