@@ -34,7 +34,7 @@ export async function getRoomUpdates(request: Request, response: Response) {
     const roomId = parseInt(request.params.rid);
     const lastMessId = parseInt(request.params.lmid);
 
-    if(!roomId || !lastMessId) {
+    if(!roomId || (!lastMessId && lastMessId !== 0)) {
         return response.json({"error":'Incorect data'});
     }
     const updates = await query<Message>(

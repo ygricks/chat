@@ -22,7 +22,7 @@ class Chat {
         if(problem.length){
             throw new Error(`Error: ${problem.join(' && ')}`);
         }
-        this.lastMessage = undefined;
+        this.lastMessage = 0;
     }
 
     async start() {
