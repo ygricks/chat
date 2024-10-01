@@ -36,6 +36,7 @@ async function getRooms() {
 
 function coverRoom(room) {
     const li = document.createElement('li');
+    li.dataset.id = room.room_id;
     const a = document.createElement('a');
     const span = action(room.author ? 'remove' : 'quit');
     a.href = `/room/${room.room_id}`;
@@ -67,6 +68,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     if (path === '') {
         await start();
         ListenCreateRoom();
+        ListenRemoveRoom();
     }
 });
 
@@ -97,4 +99,21 @@ const ListenCreateRoom = function() {
             console.error('Error:', error);
         });
     });
+}
+
+const ListenRemoveRoom = function() {
+    const removeButtons = document.querySelectorAll('span.action_remove');
+    removeButtons.forEach(btn => btn.addEventListener('click', event => {
+        const roomId = event.target.parentNode.getAttribute("data-id");
+        if(!roomId) {
+            throw new Error(`Can't get related room`);
+        }
+        fetch('/api/room/' + roomId,  {
+            method: 'DELETE'
+        })
+        .then((response) => response.json())
+        .then(response => {
+            console.log({response})
+        })
+    }));
 }

@@ -1,13 +1,9 @@
 import { Request, Response } from 'express';
 import { insert, query, queryOne } from '../common';
 import { SingletonEventBus } from '../common/SingletonEventBus';
+import { IResponseMessage } from '../interfaces';
 
-type ResponseMessage = {
-    id: number,
-    created_at: Date,
-    mess: string,
-    author: string,
-}
+
 export async function postMessage(
     request: Request,
     response: Response
@@ -23,7 +19,7 @@ export async function postMessage(
     };
 
     const id = await insert('mess', data);
-    const mess = await queryOne<ResponseMessage>(
+    const mess = await queryOne<IResponseMessage>(
         'SELECT '+
         'mt.id, mt.created_at, mt.mess, ut.name, mt.created_by=$1 AS author '+
         'FROM mess AS mt '+

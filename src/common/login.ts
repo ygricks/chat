@@ -1,8 +1,26 @@
-import { queryOne } from './db';
-import { IUser } from '../interfaces';
 import { NextFunction, Request, Response } from 'express';
 import { compareSync } from 'bcryptjs';
 import { sign, verify } from 'jsonwebtoken';
+import { config } from 'dotenv';
+
+import { queryOne } from './db';
+import { IUser } from '../interfaces';
+
+config();
+
+export async function postLogin(
+    request: Request,
+    response: Response,
+    next: NextFunction
+): Promise<Response> {
+    const logged = await login(request, response);
+    if (!logged) {
+        return UnauthorizedError(response, { done: false });
+    }
+    return response.status(200).json({
+        done: true
+    });
+}
 
 export class Cookies {
     constructor(private request: Request, private response: Response) {}

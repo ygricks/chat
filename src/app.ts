@@ -1,12 +1,14 @@
 import express from 'express';
 import { config } from 'dotenv';
 import bodyParser from 'body-parser';
-import { safeCall, isAuthorized, SingletonEventBus, roomHasUserASeat, createRoom } from './common';
+import { safeCall, isAuthorized, SingletonEventBus, postLogin } from './common';
 import cookieParser from 'cookie-parser';
-import { getRooms, getRoomMassages, postMessage, postLogin, getRoomUpdates } from './requests';
+import { postMessage } from './requests';
 // import { hashSync } from 'bcryptjs';
 // import {Request, Response} from 'express';
 import { pageLogin, pageMain, pageRoomChat } from './pages';
+import { createRoomReq, deleteRoomReq, getRoomMessagesReq, getRoomsReq, getRoomUpdatesReq } from './controller';
+import { hasUserInRoom } from './model';
 
 config();
 
@@ -20,10 +22,11 @@ app.get('/', isAuthorized, safeCall(pageMain));
 app.get('/login', safeCall(pageLogin));
 app.get('/room/:id', isAuthorized, safeCall(pageRoomChat));
 
-app.get('/api/rooms', isAuthorized, safeCall(getRooms));
-app.get('/api/room/:id', isAuthorized, safeCall(getRoomMassages));
-app.get('/api/room/:rid/:lmid', isAuthorized, safeCall(getRoomUpdates));
-app.post('/api/room', isAuthorized, safeCall(createRoom));
+app.get('/api/rooms', isAuthorized, safeCall(getRoomsReq));
+app.get('/api/room/:id', isAuthorized, safeCall(getRoomMessagesReq));
+app.delete('/api/room/:id', isAuthorized, safeCall(deleteRoomReq));
+app.get('/api/room/:rid/:lmid', isAuthorized, safeCall(getRoomUpdatesReq));
+app.post('/api/room', isAuthorized, safeCall(createRoomReq));
 app.post('/api/room/:id', isAuthorized, safeCall(postMessage));
 app.post('/api/login', safeCall(postLogin));
 
@@ -31,7 +34,7 @@ app.get("/stream/:id", isAuthorized, async (request, res) => {
     const userId = request.body.user.id;
     const roomId = parseInt(request.params.id);
 
-    const seat = await roomHasUserASeat(roomId, userId);
+    const seat = await hasUserInRoom(roomId, userId);
     if(!seat) {
         return res.status(403).json({'error':'you are not in that room!'});
     }

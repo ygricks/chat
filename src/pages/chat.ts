@@ -1,5 +1,6 @@
-import { roomHasUserASeat, UseGeneralTemplate } from "../common"
+import { UseGeneralTemplate } from "../common"
 import { Request, Response } from 'express';
+import { hasUserInRoom } from "../model";
 
 export async function pageRoomChat(
     request: Request,
@@ -8,7 +9,7 @@ export async function pageRoomChat(
     const userId = request.body.user.id;
     const roomId = parseInt(request.params.id);
 
-    const seat = await roomHasUserASeat(roomId, userId);
+    const seat = await hasUserInRoom(roomId, userId);
     if(!seat) {
         return response.status(403).json({'error':'you are not in that room!'});
     }
