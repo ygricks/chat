@@ -28,7 +28,7 @@ const start_login = function () {
         .then((response) => response.json())
         .then((response) => {
             if (response.done === true) {
-                window.location.href = '/rooms';
+                window.location.href = '/';
             }
         })
         .catch((error) => {
