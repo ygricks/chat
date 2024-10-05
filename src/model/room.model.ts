@@ -1,4 +1,4 @@
-import { insert, query, queryOne } from '../common';
+import { insert, query, queryOne, remove } from '../common';
 import { IMessage, IRoomSeat } from '../interfaces';
 
 export async function createRoom(userId: number, title: string) {
@@ -47,4 +47,12 @@ export async function roomGetUpdates (userId: number, roomId: number, lastMessId
         +') sub ORDER BY id ASC;',
         [userId, roomId, lastMessId]
     );
+}
+
+export async function roomDelete(roomId: number) {
+    // maybe  cascade delete ...
+    await remove('mess', {'room_id': roomId});
+    const seat = await remove('seats', {'room_id': roomId});
+    const room = await remove('rooms', {'id': roomId});
+    return Promise.resolve({removed: !!seat?.rowCount && !!room?.rowCount});
 }

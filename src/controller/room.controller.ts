@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createRoom, roomGetMessages, roomGetUpdates, roomGetUserSeats, hasUserInRoom } from '../model';
+import { createRoom, roomGetMessages, roomGetUpdates, roomGetUserSeats, hasUserInRoom, roomDelete } from '../model';
 import { queryOne } from '../common';
 
 export async function createRoomReq(
@@ -59,17 +59,15 @@ export async function deleteRoomReq(
     response: Response
 ): Promise<Response> {
     const roomId = parseInt(request.params.id);
-
     const seat = await hasUserInRoom(roomId, request.body.user.id);
     if(!seat) {
         return response.status(403).json({'error':'you are not in that room!'});
     }
-
     if(!seat.author) {
         return response.status(403).json({'error':'you are not the room author!'});
     }
 
-   
+    const result = await roomDelete(roomId);
 
-    return response.json(seat);
+    return response.json(result);
 }

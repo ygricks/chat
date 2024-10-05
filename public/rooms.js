@@ -104,7 +104,8 @@ const ListenCreateRoom = function() {
 const ListenRemoveRoom = function() {
     const removeButtons = document.querySelectorAll('span.action_remove');
     removeButtons.forEach(btn => btn.addEventListener('click', event => {
-        const roomId = event.target.parentNode.getAttribute("data-id");
+        const parent = event.target.parentNode
+        const roomId = parent.getAttribute("data-id");
         if(!roomId) {
             throw new Error(`Can't get related room`);
         }
@@ -113,7 +114,11 @@ const ListenRemoveRoom = function() {
         })
         .then((response) => response.json())
         .then(response => {
-            console.log({response})
+            if(response.removed) {
+                parent.remove();
+            } else {
+                console.warn('Something goes wrong.');
+            }
         })
     }));
 }
