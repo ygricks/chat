@@ -85,5 +85,5 @@ INSERT INTO mess(room_id, created_by, mess) VALUES
 (2, 2, 'tuk tuk!'),
 (2, 1, 'who is there ?'),
 (2, 2, 'me'),
-(2, 1, 'me who ?')
+(2, 1, 'me who ?'),
 (2, 2, 'you');
