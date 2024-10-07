@@ -37,19 +37,79 @@ class Chat {
     listenSend() {
         document.addEventListener('keyup', (e) => {
             if (e.key === 'Enter' && e.target === this.input && this.input.value.length) {
-                this.postMessage();
+                this.write();
             }
         });
         this.sendButton.addEventListener('click', (e) => {
             if (this.input.value.length) {
-                this.postMessage();
+                this.write();
             }
         });
     }
 
-    async postMessage() {
+    async write() {
         const message = this.input.value;
- 
+        if(message[0] === '/') {
+            switch (message) {
+                case '/invite':
+                    this.inviteScript();
+                    return ;
+                case '/exit':
+                case '/quit':
+                    window.location.href = '';
+                    return ;
+            }
+        }
+        this.postMessage(message);
+    }
+
+    inviteScript() {
+        const chatInput = this.input;
+        const bg = document.createElement('div');
+        bg.setAttribute('id', 'blockModal');
+        document.body.appendChild(bg);
+        const modal = document.createElement('div');
+        modal.setAttribute('id', 'modal')
+        bg.appendChild(modal);
+
+        const close = document.createElement('div');
+        close.setAttribute('id', 'closeModal');
+        close.appendChild(document.createTextNode('⊠'));
+        const closeModal = ()=>{bg.remove()};
+        close.addEventListener('click', closeModal);
+        const keyUpFn = (event) => {
+            if(event.code === 'Escape') {
+                document.body.removeEventListener('keyup', keyUpFn);
+                closeModal();
+                chatInput.focus();
+            }
+        };
+        document.body.addEventListener('keyup', keyUpFn);
+        modal.appendChild(close);
+
+        
+
+        const list = document.createElement('div');
+        list.classList.add('user_list');
+        modal.appendChild(list);
+
+        const input = document.createElement('input');
+        modal.appendChild(input);
+        
+        for(let i=0; i<3; i++) {
+            const item = document.createElement('div');
+            item.appendChild(document.createTextNode(`>> ${i}`));
+            list.appendChild(item);
+        }
+
+        input.focus();
+    }
+
+    clearInput() {
+        this.input.value = '';
+    }
+
+    async postMessage(message) { 
         fetch(`/api/room/${this.roomId}`, {
             method: 'POST',
             headers: {
@@ -57,10 +117,8 @@ class Chat {
             },
             body: JSON.stringify({ message })
         })
-        .then((response) => response.json())
         .then((response) => {
-            console.debug(response)
-            this.input.value = '';
+            this.clearInput();
         })
         .catch((error) => {
             console.error('Error:', error);

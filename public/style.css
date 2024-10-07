@@ -172,3 +172,53 @@ ul#rooms_list {
     cursor: pointer;
     font-size: 16px;
 }
+
+
+/* invite */
+#blockModal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,.5);
+}
+
+#blockModal > div {
+    width: 400px;
+    height: 300px;
+    
+    background-color: lightskyblue;
+    -webkit-box-shadow: 0px 0px 18px 9px rgba(0,0,0,1);
+    -moz-box-shadow: 0px 0px 18px 9px rgba(0,0,0,1);
+    box-shadow: 0px 0px 18px 9px rgba(0,0,0,1);
+}
+#modal {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+#modal > div {
+    flex-grow: 1;
+}
+#modal > input {
+    flex-grow: 0;
+    height: 30px;
+}
+#closeModal {
+    display: block;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    background-color: red;
+    color: black;
+    font-size: 24px;
+    line-height: 19px;
+}

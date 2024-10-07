@@ -19,7 +19,7 @@ export async function pageRoomChat(
                 <div id="chat-history"></div>
             </div>
             <div class="chat-actions">
-                <input type="text" id="chat-input" />
+                <input type="text" id="chat-input" autoFocus />
                 <div id="chat-send">⌲</div>
             </div>
         </div>`;
