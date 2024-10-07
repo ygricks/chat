@@ -20,7 +20,7 @@ const action = function (button) {
         default:
             throw new Error('wrong button type');
     }
-
+    span.classList.add('action');
     span.classList.add(String('action_'+button));
     return span;
 }
@@ -67,58 +67,103 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const path = window.location.pathname.split('/').pop();
     if (path === '') {
         await start();
-        ListenCreateRoom();
-        ListenRemoveRoom();
+        ListenActions();
     }
 });
 
-const ListenCreateRoom = function() {
-    const button = document.getElementById('createRoom');
-    if(!button) {
-        console.warn('listen ellement not found');
+const ListenActions = function() {
+    const buttons = document.querySelectorAll('span.action');
+
+    buttons.forEach(btn => btn.addEventListener('click', event => {
+        const action = Array.from(event.target.classList).pop();
+        switch (action) {
+            case 'action_create':
+                CreateRoom();
+                break;
+            case 'action_remove':
+                RemoveRoom(event);
+                break;
+            case 'action_quit':
+                QuitRoom(event);
+                break;
+        
+            default:
+                console.log('-- nope --', action)
+                break;
+        }
+
+    }));
+}
+
+const CreateRoom = async function() {
+    const title = await prompt('write title for new room:');
+
+    if(title.length < 3) {
+        console.warn('wrong title');
         return ;
     }
-    button.addEventListener('click', async () => {
-        const title = await prompt('write title for new room:');
-        fetch(`/api/room`, {
-            method: 'POST', // or 'PUT'
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({title})
-        })
-        .then((response) => response.json())
-        .then((response) => {
-            if (response.seatId) {
-                window.location.href = `/room/${response.roomId}`;
-            } else {
-                console.warn('something went wrong!');
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+
+    fetch(`/api/room`, {
+        method: 'POST', // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({title})
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if (response.seatId) {
+            window.location.href = `/room/${response.roomId}`;
+        } else {
+            console.warn('something went wrong!');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
     });
 }
 
-const ListenRemoveRoom = function() {
-    const removeButtons = document.querySelectorAll('span.action_remove');
-    removeButtons.forEach(btn => btn.addEventListener('click', event => {
-        const parent = event.target.parentNode
-        const roomId = parent.getAttribute("data-id");
-        if(!roomId) {
-            throw new Error(`Can't get related room`);
+const QuitRoom = function(event) {
+    if(!confirm('do you really want to quit from that room ?')) {
+        return ;
+    }
+
+    const parent = event.target.parentNode
+    const roomId = parent.getAttribute("data-id");
+    fetch(`/api/room/seat/${roomId}`, {
+        method: 'DELETE'
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if (response.removed) {
+            event.target.parentNode.remove();
+        } else {
+            console.warn('something went wrong!');
         }
-        fetch('/api/room/' + roomId,  {
-            method: 'DELETE'
-        })
-        .then((response) => response.json())
-        .then(response => {
-            if(response.removed) {
-                parent.remove();
-            } else {
-                console.warn('Something goes wrong.');
-            }
-        })
-    }));
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+};
+
+const RemoveRoom = function(event) {
+    if(!confirm('do you really want to remove that room ?')) {
+        return ;
+    }
+    const parent = event.target.parentNode
+    const roomId = parent.getAttribute("data-id");
+    if(!roomId) {
+        throw new Error(`Can't get related room`);
+    }
+    fetch('/api/room/' + roomId,  {
+        method: 'DELETE'
+    })
+    .then((response) => response.json())
+    .then(response => {
+        if(response.removed) {
+            parent.remove();
+        } else {
+            console.warn('Something goes wrong.');
+        }
+    });
 }

@@ -123,6 +123,6 @@ export async function remove(
     criteria: GenerycParams
 ): Promise<QueryResult<any>> {
     const { update, values } = prepare(criteria);
-    const sql = `DELETE FROM ${table} WHERE ${update.join(', ')};`;
+    const sql = `DELETE FROM ${table} WHERE ${update.join(' AND ')};`;
     return getPool().query(sql, values);
 }

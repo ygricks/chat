@@ -56,3 +56,8 @@ export async function roomDelete(roomId: number) {
     const room = await remove('rooms', {'id': roomId});
     return Promise.resolve({removed: !!seat?.rowCount && !!room?.rowCount});
 }
+
+export async function seatDelete(roomId: number, userId: number) {
+    const seat = await remove('seats', {'room_id': roomId, 'user_id': userId});
+    return Promise.resolve({removed: !!seat?.rowCount});
+}
