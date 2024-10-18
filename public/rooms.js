@@ -112,7 +112,7 @@ const CreateRoom = async function() {
     })
     .then((response) => response.json())
     .then((response) => {
-        if (response.seatId) {
+        if (response.seatCreated) {
             window.location.href = `/room/${response.roomId}`;
         } else {
             console.warn('something went wrong!');

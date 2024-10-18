@@ -3,7 +3,40 @@ document.addEventListener('DOMContentLoaded', ()=>{
     chat.start();
 });
 
+class Modal {
+    bg=undefined;
+    modal=undefined;
+    onClose = ()=>{};
+    constructor(content) {
+        this.bg = document.createElement('div');
+        this.bg.setAttribute('id', 'blockModal');
+        document.body.appendChild(this.bg);
+        this.modal = document.createElement('div');
+        this.modal.setAttribute('id', 'modal')
+        this.bg.appendChild(this.modal);
+        modal.appendChild(content);
+
+        const close = document.createElement('div');
+        close.setAttribute('id', 'closeModal');
+        close.appendChild(document.createTextNode('⊠'));
+        close.addEventListener('click', this.close.bind(this));
+        const keyUpFn = (event) => {
+            if(event.code === 'Escape') {
+                document.body.removeEventListener('keyup', keyUpFn);
+                this.close();
+            }
+        };
+        document.body.addEventListener('keyup', keyUpFn);
+        this.modal.appendChild(close);
+    }
+    close() {
+        this.onClose();
+        this.bg.remove()
+    }
+}
+
 class Chat {
+    modal = undefined;
     constructor() {
         let problem = [];
 
@@ -14,7 +47,7 @@ class Chat {
         this.history = document.getElementById('chat-history');
         this.input = document.getElementById('chat-input');
         this.sendButton = document.getElementById('chat-send');
-    
+
         if(!this.input || !this.history) {
             problem.push('chat dom elements problem');
         }
@@ -64,52 +97,99 @@ class Chat {
     }
 
     inviteScript() {
-        const chatInput = this.input;
-        const bg = document.createElement('div');
-        bg.setAttribute('id', 'blockModal');
-        document.body.appendChild(bg);
-        const modal = document.createElement('div');
-        modal.setAttribute('id', 'modal')
-        bg.appendChild(modal);
+        const self = this;
+        const content = document.createElement('div');
+        content.setAttribute('id', 'inviteModal');
 
-        const close = document.createElement('div');
-        close.setAttribute('id', 'closeModal');
-        close.appendChild(document.createTextNode('⊠'));
-        const closeModal = ()=>{bg.remove()};
-        close.addEventListener('click', closeModal);
-        const keyUpFn = (event) => {
-            if(event.code === 'Escape') {
-                document.body.removeEventListener('keyup', keyUpFn);
-                closeModal();
-                chatInput.focus();
-            }
-        };
-        document.body.addEventListener('keyup', keyUpFn);
-        modal.appendChild(close);
-
-        
+        self.modal = new Modal(content);
+        self.modal.onClose = () => {
+            self.input.focus();
+        }
 
         const list = document.createElement('div');
         list.classList.add('user_list');
-        modal.appendChild(list);
+        content.appendChild(list);
 
         const input = document.createElement('input');
-        modal.appendChild(input);
-        
-        for(let i=0; i<3; i++) {
-            const item = document.createElement('div');
-            item.appendChild(document.createTextNode(`>> ${i}`));
-            list.appendChild(item);
-        }
+        content.appendChild(input);
+
+        input.addEventListener('change', () => {
+            if(input.value.length >= 3) {
+                fetch('/api/user?' + new URLSearchParams({
+                    roomId: self.roomId,
+                    'name': input.value,
+                }).toString())
+                .then((response) => response.json())
+                .then(data => {
+                    if(data?.users?.length) {
+                        list.innerHTML = '';
+                        for(const user of data.users) {
+                            const div = document.createElement('div');
+                            const radio = document.createElement('input');
+                            radio.type = 'checkbox';
+                            radio.name = user.name;
+                            radio.dataset.userid = user.id;
+                            radio.checked = false;
+                            div.appendChild(radio)
+                            div.appendChild(document.createTextNode(' ' + user.name));
+                            list.appendChild(div);
+                        }
+                        const add = document.createElement('button');
+                        add.classList.add('btn');
+                        add.appendChild(document.createTextNode('Add'));
+                        add.type = 'button';
+                        list.appendChild(add);
+                        add.addEventListener('click', self.sendInvitation.bind(self));
+                    } else {
+                        list.innerHTML = '\nno users found';
+                    }
+                });
+            }
+        });
+
+        let note = document.createTextNode('write more then 3 characters of user name and hit enter, pay attention on user name, on once you can see only 10 users');
+        list.appendChild(note);
 
         input.focus();
+    }
+
+    async sendInvitation(event) {
+        const self = this;
+        const list = event.target.parentNode;
+        const usersId = [];
+        for(const item of list.children) {
+            if(item.nodeName !== 'DIV') {
+                break;
+            }
+            const check = item.querySelector('input[type=checkbox]');
+            if(check.checked) {
+                usersId.push(parseInt(check.dataset.userid));
+            }
+        }
+        if(usersId.length){
+            return fetch(`/api/room/seat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ users: usersId, roomId: self.roomId })
+            })
+            .then(async (response) => {
+                const data = await response.json();
+                console.log(data);
+                // self.modal.close();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
     }
 
     clearInput() {
         this.input.value = '';
     }
 
-    async postMessage(message) { 
+    async postMessage(message) {
         fetch(`/api/room/${this.roomId}`, {
             method: 'POST',
             headers: {
@@ -143,7 +223,7 @@ class Chat {
                     } else if (retryCount === 10) {
                         retryDelay = 6e4;
                     }
-        
+
                     setTimeout(()=>{
                         connect();
                     }, retryDelay);

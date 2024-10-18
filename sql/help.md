@@ -7,7 +7,7 @@ docker exec -it chat_postgres bash
 
 #### Login in postgres
 ```sh
-psql -U postgres - login postgres
+psql -U postgres -d chat_db
 ```
 
 ### Postgres

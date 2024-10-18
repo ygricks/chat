@@ -7,8 +7,9 @@ import { postMessage } from './requests';
 // import { hashSync } from 'bcryptjs';
 // import {Request, Response} from 'express';
 import { pageLogin, pageMain, pageRoomChat } from './pages';
-import { createRoomReq, deleteRoomReq, deleteSeatReq, getRoomMessagesReq, getRoomsReq, getRoomUpdatesReq } from './controller';
+import { createRoomReq, deleteRoomReq, deleteSeatReq, getRoomMessagesReq, getRoomsReq, getRoomUpdatesReq, postSeatReq } from './controller';
 import { hasUserInRoom } from './model';
+import { getUsersInviteReq } from './user';
 
 config();
 
@@ -24,8 +25,10 @@ app.get('/room/:id', isAuthorized, safeCall(pageRoomChat));
 
 app.get('/api/rooms', isAuthorized, safeCall(getRoomsReq));
 app.get('/api/room/:id', isAuthorized, safeCall(getRoomMessagesReq));
+app.get('/api/user', isAuthorized, safeCall(getUsersInviteReq));
 app.delete('/api/room/:id', isAuthorized, safeCall(deleteRoomReq));
 app.delete('/api/room/seat/:id', isAuthorized, safeCall(deleteSeatReq));
+app.post('/api/room/seat', isAuthorized, safeCall(postSeatReq));
 app.get('/api/room/:rid/:lmid', isAuthorized, safeCall(getRoomUpdatesReq));
 app.post('/api/room', isAuthorized, safeCall(createRoomReq));
 app.post('/api/room/:id', isAuthorized, safeCall(postMessage));

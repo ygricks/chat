@@ -16,11 +16,11 @@ CREATE TABLE rooms (
 );
 
 CREATE TABLE seats (
-	id BIGSERIAL PRIMARY KEY,
 	room_id BIGINT NOT NULL,
 	user_id BIGINT NOT NULL,
 	created_at TIMESTAMP DEFAULT NOW(),
 	author BOOLEAN NOT NULL DEFAULT FALSE,
+	CONSTRAINT seats_pkey PRIMARY KEY (room_id, user_id),
 	CONSTRAINT fk_seat_room FOREIGN KEY(room_id) REFERENCES rooms(id),
 	CONSTRAINT fk_seat_user FOREIGN KEY(user_id) REFERENCES users(id)
 );
@@ -41,7 +41,10 @@ CREATE TABLE mess (
 
 INSERT INTO users(name, password) VALUES
 ('igor', '$2a$10$LLRgDiWSP4iePSrLqOVFke5U7x0TVcBhaQb/jPh9XdsJnat7BhWiO'),
-('iura', '$2a$10$.0PW9BTyDfSxNt96SBP/weJ46jo.zYvsGg0chO644Jr737h8bWJpG');
+('iura', '$2a$10$.0PW9BTyDfSxNt96SBP/weJ46jo.zYvsGg0chO644Jr737h8bWJpG'),
+('miurging','noWay'),
+('kitalasiur','noWay'),
+('bafiur','noWay');
 
 INSERT INTO rooms(title, created_by) VALUES
 ('first chat room', 1),

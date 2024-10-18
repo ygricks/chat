@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { createRoom, roomGetMessages, roomGetUpdates, roomGetUserSeats, hasUserInRoom, roomDelete, seatDelete } from '../model';
-import { queryOne } from '../common';
+import { createRoom, roomGetMessages, roomGetUpdates, roomGetUserSeats, hasUserInRoom, roomDelete, seatDelete, seatCreate } from '../model';
 
 export async function createRoomReq(
     request: Request,
@@ -9,11 +8,11 @@ export async function createRoomReq(
     const userId = parseInt(request.body.user.id);
     const title = String(request.body.title);
 
-    const {roomId, seatId} = await createRoom(userId, title);
+    const {roomId, seatCreated} = await createRoom(userId, title);
 
     return response.json({
         roomId: roomId,
-        seatId: seatId,
+        seatCreated: seatCreated,
     });
 }
 
@@ -88,4 +87,15 @@ export async function deleteSeatReq(
     const result = await seatDelete(roomId, request.body.user.id);
 
     return response.json(result);
+}
+
+export async function postSeatReq (
+    request: Request,
+    response: Response
+): Promise<Response> {
+    const roomId = parseInt(request.body.roomId);
+    const users: number[] = ((users=[])=>users.map((i:string)=>parseInt(i)))(request.body.users);
+
+    const result = await seatCreate(roomId, users);
+    return response.json({result});
 }
