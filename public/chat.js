@@ -18,7 +18,7 @@ class Modal {
 
         const close = document.createElement('div');
         close.setAttribute('id', 'closeModal');
-        close.appendChild(document.createTextNode('⊠'));
+        close.appendChild(document.createTextNode('✕'));
         close.addEventListener('click', this.close.bind(this));
         const keyUpFn = (event) => {
             if(event.code === 'Escape') {
@@ -32,6 +32,154 @@ class Modal {
     close() {
         this.onClose();
         this.bg.remove()
+    }
+}
+
+class Member{
+    focus = 'left';
+    select = {right: null, left: null};
+    names = {right: 'room members', left: 'find new member'}
+    content = null;
+    findInput = null;
+    roomId = null;
+    constructor(roomId) {
+        this.roomId = roomId;
+        this.content = document.createElement('div');
+        this.content.setAttribute('id', 'member');
+        const block = document.createElement('div');
+        block.classList.add('member-block');
+        this.content.appendChild(block);
+        for(const sideName of ['left', 'right']) {
+            const side = document.createElement('div');
+            side.dataset.side = sideName;
+            side.classList.add('member-side');
+            block.appendChild(side);
+            const span = document.createElement('span');
+            span.innerHTML = this.names[sideName];
+            side.appendChild(span);
+            const select = document.createElement('select');
+            this.select[sideName] = select;
+            select.setAttribute('multiple', 'multiple');
+            side.appendChild(select);
+        }
+
+        fetch(`/api/room/${roomId}/members`)
+        .then((response) => response.json())
+        .then(data => {
+            if(data?.members?.length) {
+                for(const user of data.members) {
+                    const option = document.createElement('option');
+                    option.dataset.id = user.id
+                    option.classList.add('inside');
+                    option.innerHTML = user.name;
+                    this.select.right.appendChild(option);
+                }
+            }
+        });
+
+        const findInput = document.createElement('input');
+        findInput.classList.add('member-find')
+        this.select.left.parentNode.appendChild(findInput);
+        this.findInput = findInput;
+
+        const buttons = document.createElement('div');
+        buttons.classList.add('member-buttons');
+        this.content.appendChild(buttons);
+
+        const swapBtn = document.createElement('button');
+        swapBtn.setAttribute('type', 'button');
+        swapBtn.classList.add('btn', 'btn-gold');
+        swapBtn.innerHTML = 'SWAP >';
+        this.swapBtn = swapBtn;
+        buttons.appendChild(swapBtn);
+
+        const saveBtn = document.createElement('button');
+        saveBtn.setAttribute('type', 'button');
+        saveBtn.classList.add('btn');
+        saveBtn.innerHTML = 'Save';
+        this.saveBtn = saveBtn;
+        buttons.appendChild(saveBtn);
+
+        this.startListen();
+    }
+    startListen() {
+        const self = this;
+        // change focus
+        for(const select of Object.values(self.select)) {
+            select.addEventListener('focus', (e) => {
+                const side = e.target.parentNode.dataset.side;
+                self.focus = side;
+                self.swapBtn.innerHTML = side == 'left' ? 'SWAP >' : '< SWAP';
+            });
+        }
+        // swap items
+        self.swapBtn.addEventListener('click', () => {
+            const sourceSelect = self.select[self.focus];
+            const destinSelect = self.select[self.focus == 'left' ? 'right' : 'left'];
+            const selected = Array.from(sourceSelect.options).filter(o => o.selected);
+            for(const op of selected){
+                destinSelect.appendChild(op);
+            }
+        });
+        // find members
+        const { findInput } = self;
+        findInput.addEventListener('change', () => {
+            if(findInput.value.length >= 3) {
+                fetch('/api/user?' + new URLSearchParams({
+                    roomId: self.roomId,
+                    name: findInput.value
+                }).toString())
+                .then((response) => response.json())
+                .then(data => {
+                    if(data?.users) {
+                        Array.from(self.select.left.options).filter(o=>!o.classList.contains('inside')).map(o=>o.remove());
+                        if(data.users?.length) {
+                            for(const user of data.users) {
+                                const option = document.createElement('option');
+                                option.dataset.id = user.id
+                                option.innerHTML = user.name;
+                                self.select.left.appendChild(option);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        // save members
+        self.saveBtn.addEventListener('click', () => {
+            const memIds = [];
+            for(const op of Array.from(self.select.right.options)) {
+                memIds.push(parseInt(op.dataset.id));
+            }
+            if(memIds.length) {
+                fetch(`/api/room/${self.roomId}/members`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ users: memIds })
+                })
+                .then(async (response) => {
+                    const data = await response.json();
+                    if(data?.result != '-1:-1') {
+                        self.fix();
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    }
+    fix() {
+        const found = Array.from(this.select.left.querySelectorAll('.inside'));
+        for(const op of found) {
+            op.classList.remove('inside');
+        }
+        const member = Array.from(this.select.right.querySelectorAll("option:not(.inside)"));
+        for(const op of member) {
+            op.classList.add('inside');
+        }
     }
 }
 
@@ -89,7 +237,7 @@ class Chat {
                     return ;
                 case '/exit':
                 case '/quit':
-                    window.location.href = '';
+                    document.location.href = "/";
                     return ;
             }
         }
@@ -98,90 +246,13 @@ class Chat {
 
     inviteScript() {
         const self = this;
-        const content = document.createElement('div');
-        content.setAttribute('id', 'inviteModal');
-
-        self.modal = new Modal(content);
-        self.modal.onClose = () => {
+        const member = new Member(self.roomId);
+        const modal = new Modal(member.content);
+        member.findInput.focus();
+        modal.onClose = () => {
             self.input.focus();
-        }
-
-        const list = document.createElement('div');
-        list.classList.add('user_list');
-        content.appendChild(list);
-
-        const input = document.createElement('input');
-        content.appendChild(input);
-
-        input.addEventListener('change', () => {
-            if(input.value.length >= 3) {
-                fetch('/api/user?' + new URLSearchParams({
-                    roomId: self.roomId,
-                    'name': input.value,
-                }).toString())
-                .then((response) => response.json())
-                .then(data => {
-                    if(data?.users?.length) {
-                        list.innerHTML = '';
-                        for(const user of data.users) {
-                            const div = document.createElement('div');
-                            const radio = document.createElement('input');
-                            radio.type = 'checkbox';
-                            radio.name = user.name;
-                            radio.dataset.userid = user.id;
-                            radio.checked = false;
-                            div.appendChild(radio)
-                            div.appendChild(document.createTextNode(' ' + user.name));
-                            list.appendChild(div);
-                        }
-                        const add = document.createElement('button');
-                        add.classList.add('btn');
-                        add.appendChild(document.createTextNode('Add'));
-                        add.type = 'button';
-                        list.appendChild(add);
-                        add.addEventListener('click', self.sendInvitation.bind(self));
-                    } else {
-                        list.innerHTML = '\nno users found';
-                    }
-                });
-            }
-        });
-
-        let note = document.createTextNode('write more then 3 characters of user name and hit enter, pay attention on user name, on once you can see only 10 users');
-        list.appendChild(note);
-
-        input.focus();
-    }
-
-    async sendInvitation(event) {
-        const self = this;
-        const list = event.target.parentNode;
-        const usersId = [];
-        for(const item of list.children) {
-            if(item.nodeName !== 'DIV') {
-                break;
-            }
-            const check = item.querySelector('input[type=checkbox]');
-            if(check.checked) {
-                usersId.push(parseInt(check.dataset.userid));
-            }
-        }
-        if(usersId.length){
-            return fetch(`/api/room/seat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ users: usersId, roomId: self.roomId })
-            })
-            .then(async (response) => {
-                const data = await response.json();
-                console.log(data);
-                // self.modal.close();
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+            console.log(member.content)
+            member.content.remove();
         }
     }
 

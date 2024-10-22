@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createRoom, roomGetMessages, roomGetUpdates, roomGetUserSeats, hasUserInRoom, roomDelete, seatDelete, seatCreate } from '../model';
+import { createRoom, roomGetMessages, roomGetUpdates, roomGetUserSeats, hasUserInRoom, roomDelete, seatDelete, roomGetOnlyMembers, syncRoomMembers } from '../model';
 
 export async function createRoomReq(
     request: Request,
@@ -52,6 +52,18 @@ export async function getRoomUpdatesReq(request: Request, response: Response) {
     return response.json(updates );
 }
 
+export async function getRoomMembersReq(request: Request, response: Response) {
+    const roomId = parseInt(request.params.rid);
+    const members = await roomGetOnlyMembers(roomId);
+    return response.json({members});
+}
+
+export async function postRoomMembersReq(request: Request, response: Response) {
+    const roomId = parseInt(request.params.rid);
+    const users: number[] = ((users=[])=>users.map((i:string)=>parseInt(i)))(request.body.users);
+    const result = await syncRoomMembers(roomId, users);
+    return response.json({ done: 1 , result });
+}
 
 export async function deleteRoomReq(
     request: Request,
@@ -87,15 +99,4 @@ export async function deleteSeatReq(
     const result = await seatDelete(roomId, request.body.user.id);
 
     return response.json(result);
-}
-
-export async function postSeatReq (
-    request: Request,
-    response: Response
-): Promise<Response> {
-    const roomId = parseInt(request.body.roomId);
-    const users: number[] = ((users=[])=>users.map((i:string)=>parseInt(i)))(request.body.users);
-
-    const result = await seatCreate(roomId, users);
-    return response.json({result});
 }

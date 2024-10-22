@@ -3,10 +3,12 @@
     margin: 0;
     box-sizing: border-box;
 }
-html, body{
+
+html, body {
     height: calc(100% - 20px);
     padding: 10px;
 }
+
 body {
     background:
         radial-gradient(black 15%, transparent 16%) 0 0,
@@ -22,8 +24,21 @@ a {
     color: lightblue;
 }
 
-/* chat page */
+.btn {
+    padding: 4px;
+    background-color: green;
+    border: none;
+    color: white;
+    border-radius: 7px;
+    cursor: pointer;
+}
 
+.btn-gold {
+    background: gold;
+    color: black;
+}
+
+/* chatPage > */
 .chat {
     margin: 0 auto;
 
@@ -34,7 +49,6 @@ a {
     padding: 10px;
     background: lightslategray;
     color: black;
-
     border: 1px solid black;
     flex-direction: column;
     min-height: 300px;
@@ -73,14 +87,15 @@ a {
     text-align: center;
     flex-grow: 0;
     flex-shrink: 0;
-
     background: #00c9ff;
     color: white;
     cursor: pointer;
 }
+
 #chat-send:hover {
     background-color: #00b3e3;
 }
+
 .chat-line, #chat-input, #chat-send {
     border-radius: 3px;
 }
@@ -88,10 +103,8 @@ a {
 #chat-history {
     display: flex;
     flex-direction: column;
-
     padding: 5px 10px;
     overflow: auto;
-
     overflow-y: auto;
     max-height: 500px;
 }
@@ -104,29 +117,34 @@ a {
     width: 80%;
     border-radius: 17px;
 }
+
 .mess.me {
     float: right;
     background: #ffca68e6;
     border-color: red;
     align-self: flex-end;
 }
+
 .mess:nth-child(n + 2) {
     margin-top: 10px;
 }
-.mess>span{
+
+.mess>span {
     color: grey;
     font-size: 12px;
     position: absolute;
     bottom: 1px;
     right: 13px;
 }
+/* chatPage < */
 
-/* login page */
 
+/* loginPage > */
 #loginform {
     margin: 0;
     padding: 0;
 }
+
 .flex-container {
     height: 100%;
     padding: 0;
@@ -135,10 +153,12 @@ a {
     align-items: center;
     justify-content: center;
 }
+
 .flex-row {
     width: auto;
     border: 1px solid white;
 }
+
 .flex-item {
     padding: 10px;
     line-height: 20px;
@@ -155,9 +175,10 @@ ul#rooms_list {
     margin: 0;
     padding: 0;
 }
+/* loginPage < */
 
 
-/* actions */
+/* actions > */
 .action_create {
     color: green;
 }
@@ -174,14 +195,13 @@ ul#rooms_list {
     cursor: pointer;
     font-size: 16px;
 }
+/* actions < */
 
-
-/* invite */
+/* modal > */
 #blockModal {
     display: flex;
     align-items: center;
     justify-content: center;
-
     position: absolute;
     top: 0;
     left: 0;
@@ -193,8 +213,7 @@ ul#rooms_list {
 #blockModal > div {
     width: 400px;
     height: 300px;
-
-    background-color: lightskyblue;
+    background-color: lightslategray;
     -webkit-box-shadow: 0px 0px 18px 9px rgba(0,0,0,1);
     -moz-box-shadow: 0px 0px 18px 9px rgba(0,0,0,1);
     box-shadow: 0px 0px 18px 9px rgba(0,0,0,1);
@@ -203,6 +222,7 @@ ul#rooms_list {
 #modal {
     position: relative;
     color: black;
+    border-radius: 6px;
 }
 
 #closeModal {
@@ -216,35 +236,59 @@ ul#rooms_list {
     background-color: red;
     color: black;
     font-size: 28px;
-    line-height: 22px;
+    line-height: 25px;
+    border-radius: 0 6px;
 }
+/* modal < */
 
-#inviteModal {
+/* member > */
+#member {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-#inviteModal > div {
+.member-buttons {
+    padding: 4px;
+    display: flex;
+    flex-grow: 0;
+    justify-content: center;
+}
+
+.member-buttons .btn + .btn {
+    margin-left: 10px;
+}
+
+.member-block {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+.member-side {
+    flex: 1 1 0px;
+    display: flex;
+    flex-direction: column;
+}
+
+.member-side > span {
+    flex-grow: 0;
+    display: inline-block;
+    padding: 4px;
+    background: lightslategray;
+    border-radius: 6px 6px 0 0;
+}
+
+.member-side > select {
     flex-grow: 1;
 }
 
-#inviteModal > input {
-    flex-grow: 0;
+.member-side option {
+    padding: 2px;
+}
+
+.member-find {
     height: 30px;
     padding: 0 5px;
 }
-
-.user_list {
-    padding: 10px;
-    overflow-y:scroll;  
-}
-
-.btn {
-    padding: 4px;
-    background-color: green;
-    border: none;
-    color: white;
-    border-radius: 7px;
-    cursor: pointer;
-}
+/* member < */

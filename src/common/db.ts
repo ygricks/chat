@@ -37,15 +37,16 @@ function getPool(): Pool {
 
 export type ParamType = string | Number | boolean | null;
 export type GenerycParams = Record<string, ParamType>;
-type Settings = { noId: boolean };
+type Settings = { noId: boolean, raw: boolean };
 
 export async function query<Type>(
     sql: string,
-    params: ParamType[] = []
-): Promise<Type[]> {
+    params: ParamType[] = [],
+    settings: Partial<Settings> = {}
+): Promise<Type> {
     try {
         const response = await getPool().query(sql, params);
-        return Promise.resolve(response.rows as Type[]);
+        return Promise.resolve(settings?.raw ? response as Type : response.rows as Type);
     } catch (error) {
         const message = `Error SQL calling [${sql}]`;
         console.error(message, error);
@@ -57,7 +58,7 @@ export async function queryOne<T>(
     sql: string,
     params: ParamType[] = []
 ): Promise<T> {
-    const response = await query<T>(sql, params);
+    const response = await query<T[]>(sql, params);
     return Promise.resolve(response.pop() as T);
 }
 

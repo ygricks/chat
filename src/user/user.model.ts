@@ -6,5 +6,5 @@ type InviteUser = {
 }
 
 export async function getUsersNotInRoom(name: string, roomId: number): Promise<InviteUser[]> {
-    return query<InviteUser>('SELECT * FROM users WHERE id NOT IN (SELECT user_id FROM seats WHERE room_id=$1) AND name LIKE $2;', [roomId, `%${name}%`]);
+    return query<InviteUser[]>('SELECT id, name FROM users WHERE id NOT IN (SELECT user_id FROM seats WHERE room_id=$1) AND name LIKE $2;', [roomId, `%${name}%`]);
 }
