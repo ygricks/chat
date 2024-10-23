@@ -60,6 +60,13 @@ export async function getRoomMembersReq(request: Request, response: Response) {
 
 export async function postRoomMembersReq(request: Request, response: Response) {
     const roomId = parseInt(request.params.rid);
+    const seat = await hasUserInRoom(roomId, request.body.user.id);
+    if(!seat) {
+        return response.status(403).json({'error':'you are not in that room!'});
+    }
+    if(!seat.author) {
+        return response.status(403).json({'error':'only room owner can do that!'});
+    }
     const users: number[] = ((users=[])=>users.map((i:string)=>parseInt(i)))(request.body.users);
     const result = await syncRoomMembers(roomId, users);
     return response.json({ done: 1 , result });
