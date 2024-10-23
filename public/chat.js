@@ -258,7 +258,7 @@ class Chat {
         .then((response) => response.json())
         .then((response) => {
             const { ref } = response;
-            const link = document.location.origin + '/' + ref;
+            const link = document.location.origin + '/ref/' + ref;
             const div = document.createElement('div');
             div.classList.add('ref-block');
             const p = document.createElement('p');
