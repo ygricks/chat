@@ -287,6 +287,17 @@ ul#rooms_list {
     padding: 2px;
 }
 
+.member-side option.inside {
+    position: relative;
+}
+
+.member-side option.inside::after {
+    position: absolute;
+    right: 4px;
+    display: inline;
+    content: 'Ⓜ';
+}
+
 .member-find {
     height: 30px;
     padding: 0 5px;
