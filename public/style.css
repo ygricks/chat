@@ -303,3 +303,18 @@ ul#rooms_list {
     padding: 0 5px;
 }
 /* member < */
+
+/* ref > */
+.ref-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 0 10px;
+}
+
+.ref-block input {
+    margin: 10px 0;
+}
+/* ref < */

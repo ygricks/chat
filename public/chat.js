@@ -235,6 +235,9 @@ class Chat {
                 case '/invite':
                     this.inviteScript();
                     return ;
+                case '/createRef':
+                    this.createRef();
+                    return ;
                 case '/exit':
                 case '/quit':
                     document.location.href = "/";
@@ -242,6 +245,47 @@ class Chat {
             }
         }
         this.postMessage(message);
+    }
+
+    createRef() {
+        const self = this;
+        fetch(`/api/ref`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((response) => response.json())
+        .then((response) => {
+            const { ref } = response;
+            const link = document.location.origin + '/' + ref;
+            const div = document.createElement('div');
+            div.classList.add('ref-block');
+            const p = document.createElement('p');
+            p.innerHTML = link;
+            div.appendChild(p);
+            const inp = document.createElement('input');
+            inp.value = link;
+            inp.setAttribute('readonly','readonly');
+            div.appendChild(inp);
+            const btn = document.createElement('button');
+            btn.classList.add('btn');
+            btn.setAttribute('type','button');
+            btn.innerHTML = 'copy';
+            div.appendChild(btn);
+
+            btn.addEventListener('click', ()=>{
+                navigator.clipboard.writeText(link);
+            });
+
+            const modal = new Modal(div);
+            modal.onClose = () => {
+                self.input.focus();
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
     }
 
     inviteScript() {

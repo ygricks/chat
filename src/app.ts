@@ -10,6 +10,7 @@ import { pageLogin, pageMain, pageRoomChat } from './pages';
 import { createRoomReq, deleteRoomReq, deleteSeatReq, getRoomMembersReq, getRoomMessagesReq, getRoomsReq, getRoomUpdatesReq, postRoomMembersReq } from './controller';
 import { hasUserInRoom } from './model';
 import { getUsersInviteReq } from './user';
+import { postRefReq } from './ref';
 
 config();
 
@@ -34,6 +35,8 @@ app.get('/api/room/:rid/:lmid', isAuthorized, safeCall(getRoomUpdatesReq));
 app.post('/api/room', isAuthorized, safeCall(createRoomReq));
 app.post('/api/room/:id', isAuthorized, safeCall(postMessage));
 app.post('/api/login', safeCall(postLogin));
+// register
+app.post('/api/ref', isAuthorized, safeCall(postRefReq));
 
 app.get("/stream/:id", isAuthorized, async (request, res) => {
     const userId = request.body.user.id;

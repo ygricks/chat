@@ -35,6 +35,14 @@ CREATE TABLE mess (
 	CONSTRAINT fk_mess_user FOREIGN KEY(created_by) REFERENCES users(id)
 );
 
+CREATE TABLE refs (
+	id BIGSERIAL PRIMARY KEY,
+	ref VARCHAR(50),
+	created_by BIGINT NOT NULL,
+	created_at TIMESTAMP DEFAULT NOW(),
+	CONSTRAINT fk_refs_user FOREIGN KEY(created_by) REFERENCES users(id)
+);
+
 -- --------------
 -- importing data
 -- --------------
