@@ -1,4 +1,5 @@
-import { insert } from "../common";
+import { insert, query, queryOne } from "../common";
+import { IRef } from "../interfaces";
 
 export async function createRef(userId: number) {
     const ref = {
@@ -9,4 +10,8 @@ export async function createRef(userId: number) {
     const add = await insert('refs', ref);
     const result:string = add ? ref.ref : '';
     return result;
+}
+
+export async function getRef(refId:string) {
+    return queryOne<IRef>('SELECT * FROM refs WHERE ref=$1', [refId]);
 }

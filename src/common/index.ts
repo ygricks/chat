@@ -3,3 +3,4 @@ export * from './safeCall';
 export * from './login';
 export * from './template';
 export * from './SingletonEventBus';
+export * from './404';
