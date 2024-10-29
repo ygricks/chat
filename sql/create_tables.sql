@@ -50,9 +50,9 @@ CREATE TABLE refs (
 INSERT INTO users(name, password) VALUES
 ('igor', '$2a$10$LLRgDiWSP4iePSrLqOVFke5U7x0TVcBhaQb/jPh9XdsJnat7BhWiO'),
 ('iura', '$2a$10$.0PW9BTyDfSxNt96SBP/weJ46jo.zYvsGg0chO644Jr737h8bWJpG'),
-('miurging','noWay'),
-('kitalasiur','noWay'),
-('bafiur','noWay');
+('miurging','$2a$10$q.9HDQrH4y/OI2dnPW3sRurZXs1RamO.83G7QvWY3a/sm9D4yrRLy'),
+('kitalasiur','$2a$10$9iOIMt5zB/IPXLf0KKlTyeD3MpdYuA/9UGSMSKNDt6omgy13hpN2G'),
+('bafiur','$2a$10$sBMkqbDH9uDmpQgBsJQwkOt6K4rvbo3BZp/EVtPomHyb/lK/pGqWK');
 
 INSERT INTO rooms(title, created_by) VALUES
 ('first chat room', 1),
