@@ -5,3 +5,5 @@ export * from './ISeat';
 export * from './IMessage';
 export * from './IResponseMessage';
 export * from './IRef';
+export * from './IRegisterUser';
+export * from './IResult';

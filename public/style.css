@@ -38,6 +38,18 @@ a {
     color: black;
 }
 
+.border-green {
+    border: 1px solid green;
+}
+
+.border-golden {
+    border: 1px solid gold;
+}
+
+.border-red {
+    border: 1px solid red;
+}
+
 /* chatPage > */
 .chat {
     margin: 0 auto;

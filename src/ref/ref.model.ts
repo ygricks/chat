@@ -1,4 +1,4 @@
-import { insert, query, queryOne } from "../common";
+import { insert, queryOne } from "../common";
 import { IRef } from "../interfaces";
 
 export async function createRef(userId: number) {

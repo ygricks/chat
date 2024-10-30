@@ -8,17 +8,17 @@ export async function pageRegister(
     request: Request,
     response: Response
 ) {
-    const refId = String(request.params.ref_id);
-    const ref = await getRef(refId);
+    const refName = String(request.params.ref_name);
+    const ref = await getRef(refName);
 
     const content = `
             <div class="flex-container">
             <form id="loginform" class="flex-row" action="/api/login" method="post">
                 <div class="flex-item">
-                    <p>please be patient, remember your data</p>
+                    <p>pay attention</p>
                     <p>after register you would not be able to change it</p>
                     <p>or reset your password</p>
-                    <input type="hidden" name="ref_id" value="${refId}" />
+                    <input type="hidden" name="ref_id" value="${refName}" />
                     <input
                         type="text"
                         name="username"
@@ -34,7 +34,8 @@ export async function pageRegister(
                         name="password_check"
                         placeholder="password"
                     /><br />
-                    <input id="signin" class="btn" type="button" value="sign in" />
+                    <button id="check" type="button" class="btn btn-gold">check</button>
+                    <button id="register" type="button" class="btn">register</button>
                 </div>
             </form>
         </div>`;
@@ -45,7 +46,7 @@ export async function pageRegister(
     }
     const data = UseGeneralTemplate({
         body: content,
-        head: '',
+        head: '<script src="/ref.js"></script>',
         title: '--register--'
     });
 

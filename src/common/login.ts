@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { compareSync } from 'bcryptjs';
+import { compareSync, hashSync } from 'bcryptjs';
 import { sign, verify } from 'jsonwebtoken';
 import { config } from 'dotenv';
 
-import { queryOne } from './db';
-import { IUser } from '../interfaces';
+import { insert, query, queryOne, remove } from './db';
+import { IRegisterUser, IResult, IUser } from '../interfaces';
 
 config();
 
@@ -53,13 +53,14 @@ export async function login(
     const publicUser = Object.assign({}, user) as Partial<IUser>;
     delete publicUser.password;
     const jwtToken = sign(publicUser, secret, {
-        // expressed in seconds ( 86400 = 24H )
+        // expired in seconds ( 86400 = 24H )
         expiresIn: 86400 * 7
     });
     const cookies = new Cookies(request, response);
     cookies.set('TOKEN', jwtToken);
     return Promise.resolve(true);
 }
+
 export function isAuthorized(
     request: Request,
     response: Response,
@@ -89,4 +90,37 @@ export async function UnauthorizedError(
             response.status(401).json(data)
         )
     );
+}
+
+export async function checkRegisterData(user: IRegisterUser): Promise<IResult> {
+    const reg = new RegExp(/[a-z,A-Z,0-9]+/g);
+    const login = user.name.match(reg)?.join('');
+
+    const valid = login === user.name && login.length >= 3 && login.length < 10;
+    if(!valid) {
+        return Promise.resolve({done: false, info: 'invalid name, 3 >= length <= 10, only letters and digits'});
+    }
+    const userExist = await query<{id:number}[]>('SELECT id FROM users WHERE name=$1', [login]);
+    if(userExist.length) {
+        return Promise.resolve({done: false, info: 'user with that name already exists'});
+    }
+    if(user.password.length < 6 || user.password.length > 20) {
+        return Promise.resolve({done: false, info: 'invalid password, 6 >= length <= 20'});
+    }
+    return Promise.resolve({done: true, info: 'ok'});
+}
+
+export async function Register(refName: string, user: IRegisterUser): Promise<IResult> {
+    const check = await checkRegisterData(user);
+    if(!check.done) {
+        return check;
+    }
+    const hashPass = hashSync(user.password, 10);
+    const userId = insert('users', {name: user.name, password: hashPass});
+    if(!userId) {
+        return {done: false, info: 'error on creating a new user'};
+    }
+    await remove('refs', {ref: refName});
+
+    return {done: true, info: 'ok'};
 }

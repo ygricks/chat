@@ -4,13 +4,11 @@ import bodyParser from 'body-parser';
 import { safeCall, isAuthorized, SingletonEventBus, postLogin, call404 } from './common';
 import cookieParser from 'cookie-parser';
 import { postMessage } from './requests';
-// import { hashSync } from 'bcryptjs';
-// import {Request, Response} from 'express';
 import { pageLogin, pageMain, pageRegister, pageRoomChat } from './pages';
 import { createRoomReq, deleteRoomReq, deleteSeatReq, getRoomMembersReq, getRoomMessagesReq, getRoomsReq, getRoomUpdatesReq, postRoomMembersReq } from './controller';
 import { hasUserInRoom } from './model';
 import { getUsersInviteReq } from './user';
-import { postRefReq } from './ref';
+import { checkRegisterDataReq, postRefReq, registerReq } from './ref';
 
 config();
 
@@ -37,7 +35,9 @@ app.post('/api/room/:id', isAuthorized, safeCall(postMessage));
 app.post('/api/login', safeCall(postLogin));
 // register
 app.post('/api/ref', isAuthorized, safeCall(postRefReq));
-app.get('/ref/:ref_id', safeCall(pageRegister));
+app.get('/ref/:ref_name', safeCall(pageRegister));
+app.post('/api/ref/:ref_name/loginCheck', safeCall(checkRegisterDataReq));
+app.post('/api/ref/:ref_name/register', safeCall(registerReq));
 
 app.get("/stream/:id", isAuthorized, async (request, res) => {
   const userId = request.body.user.id;
@@ -72,14 +72,6 @@ app.use(async (req, res, next) => {
   const html = await call404();
   res.status(404).send(html);
 })
-
-// @TODO remove
-// app.get('/sign', safeCall(async function getRoom(
-//     request: Request,
-//     response: Response
-// ): Promise<Response> {
-//     return response.send({hashedPassword:hashSync('123', 10)});
-// }));
 
 const PORT = Number(process.env.PORT) || 5000;
 app.listen(PORT, async () => {
