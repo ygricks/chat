@@ -44,8 +44,23 @@ class Member{
     roomId = null;
     constructor(roomId) {
         this.roomId = roomId;
+
         this.content = document.createElement('div');
         this.content.setAttribute('id', 'member');
+
+        fetch(`/api/room/${this.roomId}/members`)
+        .then((response) => response.json())
+        .then(data => {
+            if(data?.members?.length) {
+                this.build(data);
+            } else if(data?.error) {
+                this.content.innerHTML = '';
+                this.content.appendChild(document.createTextNode(data.error));
+            }
+        });
+    }
+
+    build(data) {
         const block = document.createElement('div');
         block.classList.add('member-block');
         this.content.appendChild(block);
@@ -63,24 +78,19 @@ class Member{
             side.appendChild(select);
         }
 
-        fetch(`/api/room/${roomId}/members`)
-        .then((response) => response.json())
-        .then(data => {
-            if(data?.members?.length) {
-                for(const user of data.members) {
-                    const option = document.createElement('option');
-                    option.dataset.id = user.id
-                    option.classList.add('inside');
-                    option.innerHTML = user.name;
-                    this.select.right.appendChild(option);
-                }
-            }
-        });
+        for(const user of data.members) {
+            const option = document.createElement('option');
+            option.dataset.id = user.id
+            option.classList.add('inside');
+            option.innerHTML = user.name;
+            this.select.right.appendChild(option);
+        }
 
         const findInput = document.createElement('input');
         findInput.classList.add('member-find')
         this.select.left.parentNode.appendChild(findInput);
         this.findInput = findInput;
+        this.findInput.focus();
 
         const buttons = document.createElement('div');
         buttons.classList.add('member-buttons');
@@ -292,10 +302,8 @@ class Chat {
         const self = this;
         const member = new Member(self.roomId);
         const modal = new Modal(member.content);
-        member.findInput.focus();
         modal.onClose = () => {
             self.input.focus();
-            console.log(member.content)
             member.content.remove();
         }
     }
@@ -312,7 +320,7 @@ class Chat {
             },
             body: JSON.stringify({ message })
         })
-        .then((response) => {
+        .then(() => {
             this.clearInput();
         })
         .catch((error) => {

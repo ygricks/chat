@@ -54,6 +54,13 @@ export async function getRoomUpdatesReq(request: Request, response: Response) {
 
 export async function getRoomMembersReq(request: Request, response: Response) {
     const roomId = parseInt(request.params.rid);
+    const seat = await hasUserInRoom(roomId, request.body.user.id);
+    if(!seat) {
+        return response.status(403).json({'error':'you are not in that room!'});
+    }
+    if(!seat.author) {
+        return response.status(403).json({'error':'only room owner can do that!'});
+    }
     const members = await roomGetOnlyMembers(roomId);
     return response.json({members});
 }
