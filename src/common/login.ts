@@ -97,30 +97,45 @@ export async function checkRegisterData(user: IRegisterUser): Promise<IResult> {
     const login = user.name.match(reg)?.join('');
 
     const valid = login === user.name && login.length >= 3 && login.length < 10;
-    if(!valid) {
-        return Promise.resolve({done: false, info: 'invalid name, 3 >= length <= 10, only letters and digits'});
+    if (!valid) {
+        return Promise.resolve({
+            done: false,
+            info: 'invalid name, 3 >= length <= 10, only letters and digits'
+        });
     }
-    const userExist = await query<{id:number}[]>('SELECT id FROM users WHERE name=$1', [login]);
-    if(userExist.length) {
-        return Promise.resolve({done: false, info: 'user with that name already exists'});
+    const userExist = await query<{ id: number }[]>(
+        'SELECT id FROM users WHERE name=$1',
+        [login]
+    );
+    if (userExist.length) {
+        return Promise.resolve({
+            done: false,
+            info: 'user with that name already exists'
+        });
     }
-    if(user.password.length < 6 || user.password.length > 20) {
-        return Promise.resolve({done: false, info: 'invalid password, 6 >= length <= 20'});
+    if (user.password.length < 6 || user.password.length > 20) {
+        return Promise.resolve({
+            done: false,
+            info: 'invalid password, 6 >= length <= 20'
+        });
     }
-    return Promise.resolve({done: true, info: 'ok'});
+    return Promise.resolve({ done: true, info: 'ok' });
 }
 
-export async function Register(refName: string, user: IRegisterUser): Promise<IResult> {
+export async function Register(
+    refName: string,
+    user: IRegisterUser
+): Promise<IResult> {
     const check = await checkRegisterData(user);
-    if(!check.done) {
+    if (!check.done) {
         return check;
     }
     const hashPass = hashSync(user.password, 10);
-    const userId = insert('users', {name: user.name, password: hashPass});
-    if(!userId) {
-        return {done: false, info: 'error on creating a new user'};
+    const userId = insert('users', { name: user.name, password: hashPass });
+    if (!userId) {
+        return { done: false, info: 'error on creating a new user' };
     }
-    await remove('refs', {ref: refName});
+    await remove('refs', { ref: refName });
 
-    return {done: true, info: 'ok'};
+    return { done: true, info: 'ok' };
 }

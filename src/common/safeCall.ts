@@ -1,7 +1,7 @@
 import { Request, Response, RequestHandler } from 'express';
 
-const Reset = "\x1b[0m";
-const FgCyan = "\x1b[36m";
+const Reset = '\x1b[0m';
+const FgCyan = '\x1b[36m';
 
 export function safeCall(funct: RequestHandler): RequestHandler {
     return async (

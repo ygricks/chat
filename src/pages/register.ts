@@ -1,13 +1,9 @@
-import { call404, UseGeneralTemplate } from "../common"
-
+import { call404, UseGeneralTemplate } from '../common';
 
 import { Request, Response } from 'express';
-import { getRef } from "../ref";
+import { getRef } from '../ref';
 
-export async function pageRegister(
-    request: Request,
-    response: Response
-) {
+export async function pageRegister(request: Request, response: Response) {
     const refName = String(request.params.ref_name);
     const ref = await getRef(refName);
 
@@ -40,7 +36,7 @@ export async function pageRegister(
             </form>
         </div>`;
 
-    if(!ref?.id) {
+    if (!ref?.id) {
         const html = await call404();
         return response.status(404).send(html);
     }

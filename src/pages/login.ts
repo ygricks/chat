@@ -1,12 +1,8 @@
-import { UseGeneralTemplate } from "../common"
-
+import { UseGeneralTemplate } from '../common';
 
 import { Request, Response } from 'express';
 
-export function pageLogin(
-    request: Request,
-    response: Response
-) {
+export function pageLogin(request: Request, response: Response) {
     const content = `
             <div class="flex-container">
             <form id="loginform" class="flex-row" action="/api/login" method="post">

@@ -37,7 +37,7 @@ function getPool(): Pool {
 
 export type ParamType = string | Number | boolean | null;
 export type GenerycParams = Record<string, ParamType>;
-type Settings = { noId: boolean, raw: boolean };
+type Settings = { noId: boolean; raw: boolean };
 
 export async function query<Type>(
     sql: string,
@@ -46,7 +46,9 @@ export async function query<Type>(
 ): Promise<Type> {
     try {
         const response = await getPool().query(sql, params);
-        return Promise.resolve(settings?.raw ? response as Type : response.rows as Type);
+        return Promise.resolve(
+            settings?.raw ? (response as Type) : (response.rows as Type)
+        );
     } catch (error) {
         const message = `Error SQL calling [${sql}]`;
         console.error(message, error);
@@ -89,12 +91,12 @@ function prepareMany(params: GenerycParams[]) {
     const values: ParamType[] = [];
     const firstRecord: GenerycParams = params[0];
     const keys = Object.keys(firstRecord);
-    for (let i=0; i< keys.length; i++) {
-    names.push(keys[i]);
+    for (let i = 0; i < keys.length; i++) {
+        names.push(keys[i]);
     }
-    for(const value of params) {
-        for(const name of names) {
-            values.push(value[name])
+    for (const value of params) {
+        for (const name of names) {
+            values.push(value[name]);
         }
     }
     const tmp = ((n: number, d: number) => {
@@ -102,13 +104,13 @@ function prepareMany(params: GenerycParams[]) {
         for (let e = 0; e < d; e++) {
             let m: string[] = [];
             for (let i = 1; i <= n; i++) {
-                m.push(`$${i+e*n}`);
+                m.push(`$${i + e * n}`);
             }
             result.push('(' + m.join(', ') + ')');
         }
         return result.join(', ');
     })(names.length, params.length);
-    return {names, values, tmp};
+    return { names, values, tmp };
 }
 
 export async function insert(
@@ -129,7 +131,9 @@ export async function insert(
             console.error(err);
             throw new Error(`Can't create new Item`);
         } else {
-            outsideResolve(settings?.noId ? result.rowCount : result.rows[0].id);
+            outsideResolve(
+                settings?.noId ? result.rowCount : result.rows[0].id
+            );
         }
     });
     return promise;
@@ -140,9 +144,10 @@ export async function insertMany(
     params: GenerycParams[],
     settings: Partial<Settings> = {}
 ): Promise<any> {
-    const {names,tmp,values} = prepareMany(params);
+    const { names, tmp, values } = prepareMany(params);
     const sql =
-    `INSERT INTO ${table}(${names.join(', ')}) VALUES${tmp}` +(settings?.noId ? ';' : ` RETURNING id;`);
+        `INSERT INTO ${table}(${names.join(', ')}) VALUES${tmp}` +
+        (settings?.noId ? ';' : ` RETURNING id;`);
     let outsideResolve: any;
     const promise: Promise<any> = new Promise((resolve) => {
         outsideResolve = resolve;
@@ -152,7 +157,11 @@ export async function insertMany(
             console.error(err);
             throw new Error(`Can't create new Item`);
         } else {
-            outsideResolve(settings?.noId ? result.rowCount : result?.rows.map((o: { id: string; })=>parseInt(o?.id)));
+            outsideResolve(
+                settings?.noId
+                    ? result.rowCount
+                    : result?.rows.map((o: { id: string }) => parseInt(o?.id))
+            );
         }
     });
     return promise;

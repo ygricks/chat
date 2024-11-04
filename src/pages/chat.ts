@@ -1,17 +1,16 @@
-import { UseGeneralTemplate } from "../common"
+import { UseGeneralTemplate } from '../common';
 import { Request, Response } from 'express';
-import { hasUserInRoom } from "../model";
+import { hasUserInRoom } from '../model';
 
-export async function pageRoomChat(
-    request: Request,
-    response: Response
-) {
+export async function pageRoomChat(request: Request, response: Response) {
     const userId = request.body.user.id;
     const roomId = parseInt(request.params.id);
 
     const seat = await hasUserInRoom(roomId, userId);
-    if(!seat) {
-        return response.status(403).json({'error':'you are not in that room!'});
+    if (!seat) {
+        return response
+            .status(403)
+            .json({ error: 'you are not in that room!' });
     }
     const content = `
         <div class="chat">
@@ -29,9 +28,5 @@ export async function pageRoomChat(
         title: '--chat-room--'
     });
 
-    return response
-        .status(200)
-        .set('Content-Type', 'text/html')
-        .send(data)
-    ;
+    return response.status(200).set('Content-Type', 'text/html').send(data);
 }

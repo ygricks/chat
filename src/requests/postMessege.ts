@@ -3,7 +3,6 @@ import { insert, query, queryOne } from '../common';
 import { SingletonEventBus } from '../common/SingletonEventBus';
 import { IResponseMessage } from '../interfaces';
 
-
 export async function postMessage(
     request: Request,
     response: Response
@@ -20,11 +19,11 @@ export async function postMessage(
 
     const id = await insert('mess', data);
     const mess = await queryOne<IResponseMessage>(
-        'SELECT '+
-        'mt.id, mt.created_at, mt.mess, ut.name, mt.created_by=$1 AS author '+
-        'FROM mess AS mt '+
-        'LEFT JOIN users AS ut ON ut.id=mt.created_by '+
-        'WHERE mt.id=$2;',
+        'SELECT ' +
+            'mt.id, mt.created_at, mt.mess, ut.name, mt.created_by=$1 AS author ' +
+            'FROM mess AS mt ' +
+            'LEFT JOIN users AS ut ON ut.id=mt.created_by ' +
+            'WHERE mt.id=$2;',
         [request.body.user.id, id]
     );
 

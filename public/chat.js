@@ -1,18 +1,18 @@
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', () => {
     const chat = new Chat();
     chat.start();
 });
 
 class Modal {
-    bg=undefined;
-    modal=undefined;
-    onClose = ()=>{};
+    bg = undefined;
+    modal = undefined;
+    onClose = () => {};
     constructor(content) {
         this.bg = document.createElement('div');
         this.bg.setAttribute('id', 'blockModal');
         document.body.appendChild(this.bg);
         this.modal = document.createElement('div');
-        this.modal.setAttribute('id', 'modal')
+        this.modal.setAttribute('id', 'modal');
         this.bg.appendChild(this.modal);
         modal.appendChild(content);
 
@@ -21,7 +21,7 @@ class Modal {
         close.appendChild(document.createTextNode('✕'));
         close.addEventListener('click', this.close.bind(this));
         const keyUpFn = (event) => {
-            if(event.code === 'Escape') {
+            if (event.code === 'Escape') {
                 document.body.removeEventListener('keyup', keyUpFn);
                 this.close();
             }
@@ -31,14 +31,14 @@ class Modal {
     }
     close() {
         this.onClose();
-        this.bg.remove()
+        this.bg.remove();
     }
 }
 
-class Member{
+class Member {
     focus = 'left';
-    select = {right: null, left: null};
-    names = {right: 'room members', left: 'find new member'}
+    select = { right: null, left: null };
+    names = { right: 'room members', left: 'find new member' };
     content = null;
     findInput = null;
     roomId = null;
@@ -49,22 +49,24 @@ class Member{
         this.content.setAttribute('id', 'member');
 
         fetch(`/api/room/${this.roomId}/members`)
-        .then((response) => response.json())
-        .then(data => {
-            if(data?.members?.length) {
-                this.build(data);
-            } else if(data?.error) {
-                this.content.innerHTML = '';
-                this.content.appendChild(document.createTextNode(data.error));
-            }
-        });
+            .then((response) => response.json())
+            .then((data) => {
+                if (data?.members?.length) {
+                    this.build(data);
+                } else if (data?.error) {
+                    this.content.innerHTML = '';
+                    this.content.appendChild(
+                        document.createTextNode(data.error)
+                    );
+                }
+            });
     }
 
     build(data) {
         const block = document.createElement('div');
         block.classList.add('member-block');
         this.content.appendChild(block);
-        for(const sideName of ['left', 'right']) {
+        for (const sideName of ['left', 'right']) {
             const side = document.createElement('div');
             side.dataset.side = sideName;
             side.classList.add('member-side');
@@ -78,16 +80,16 @@ class Member{
             side.appendChild(select);
         }
 
-        for(const user of data.members) {
+        for (const user of data.members) {
             const option = document.createElement('option');
-            option.dataset.id = user.id
+            option.dataset.id = user.id;
             option.classList.add('inside');
             option.innerHTML = user.name;
             this.select.right.appendChild(option);
         }
 
         const findInput = document.createElement('input');
-        findInput.classList.add('member-find')
+        findInput.classList.add('member-find');
         this.select.left.parentNode.appendChild(findInput);
         this.findInput = findInput;
         this.findInput.focus();
@@ -115,7 +117,7 @@ class Member{
     startListen() {
         const self = this;
         // change focus
-        for(const select of Object.values(self.select)) {
+        for (const select of Object.values(self.select)) {
             select.addEventListener('focus', (e) => {
                 const side = e.target.parentNode.dataset.side;
                 self.focus = side;
@@ -125,43 +127,52 @@ class Member{
         // swap items
         self.swapBtn.addEventListener('click', () => {
             const sourceSelect = self.select[self.focus];
-            const destinSelect = self.select[self.focus == 'left' ? 'right' : 'left'];
-            const selected = Array.from(sourceSelect.options).filter(o => o.selected);
-            for(const op of selected){
+            const destinSelect =
+                self.select[self.focus == 'left' ? 'right' : 'left'];
+            const selected = Array.from(sourceSelect.options).filter(
+                (o) => o.selected
+            );
+            for (const op of selected) {
                 destinSelect.appendChild(op);
             }
         });
         // find members
         const { findInput } = self;
         findInput.addEventListener('change', () => {
-            if(findInput.value.length >= 3) {
-                fetch('/api/user?' + new URLSearchParams({
-                    roomId: self.roomId,
-                    name: findInput.value
-                }).toString())
-                .then((response) => response.json())
-                .then(data => {
-                    if(data?.users) {
-                        Array.from(self.select.left.options).filter(o=>!o.classList.contains('inside')).map(o=>o.remove());
-                        if(data.users?.length) {
-                            for(const user of data.users) {
-                                const option = document.createElement('option');
-                                option.dataset.id = user.id
-                                option.innerHTML = user.name;
-                                self.select.left.appendChild(option);
+            if (findInput.value.length >= 3) {
+                fetch(
+                    '/api/user?' +
+                        new URLSearchParams({
+                            roomId: self.roomId,
+                            name: findInput.value
+                        }).toString()
+                )
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data?.users) {
+                            Array.from(self.select.left.options)
+                                .filter((o) => !o.classList.contains('inside'))
+                                .map((o) => o.remove());
+                            if (data.users?.length) {
+                                for (const user of data.users) {
+                                    const option =
+                                        document.createElement('option');
+                                    option.dataset.id = user.id;
+                                    option.innerHTML = user.name;
+                                    self.select.left.appendChild(option);
+                                }
                             }
                         }
-                    }
-                });
+                    });
             }
         });
         // save members
         self.saveBtn.addEventListener('click', () => {
             const memIds = [];
-            for(const op of Array.from(self.select.right.options)) {
+            for (const op of Array.from(self.select.right.options)) {
                 memIds.push(parseInt(op.dataset.id));
             }
-            if(memIds.length) {
+            if (memIds.length) {
                 fetch(`/api/room/${self.roomId}/members`, {
                     method: 'POST',
                     headers: {
@@ -169,25 +180,27 @@ class Member{
                     },
                     body: JSON.stringify({ users: memIds })
                 })
-                .then(async (response) => {
-                    const data = await response.json();
-                    if(data?.result != '-1:-1') {
-                        self.fix();
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
+                    .then(async (response) => {
+                        const data = await response.json();
+                        if (data?.result != '-1:-1') {
+                            self.fix();
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
             }
         });
     }
     fix() {
         const found = Array.from(this.select.left.querySelectorAll('.inside'));
-        for(const op of found) {
+        for (const op of found) {
             op.classList.remove('inside');
         }
-        const member = Array.from(this.select.right.querySelectorAll("option:not(.inside)"));
-        for(const op of member) {
+        const member = Array.from(
+            this.select.right.querySelectorAll('option:not(.inside)')
+        );
+        for (const op of member) {
             op.classList.add('inside');
         }
     }
@@ -200,17 +213,17 @@ class Chat {
 
         this.roomId = parseInt(window.location.pathname.split('/').pop());
         if (this.roomId < 1) {
-            problem.push(`room id problem "${roomId}"`)
+            problem.push(`room id problem "${roomId}"`);
         }
         this.history = document.getElementById('chat-history');
         this.input = document.getElementById('chat-input');
         this.sendButton = document.getElementById('chat-send');
 
-        if(!this.input || !this.history) {
+        if (!this.input || !this.history) {
             problem.push('chat dom elements problem');
         }
 
-        if(problem.length){
+        if (problem.length) {
             throw new Error(`Error: ${problem.join(' && ')}`);
         }
         this.lastMessage = 0;
@@ -218,7 +231,7 @@ class Chat {
 
     async start() {
         const messages = await getMessages(this.roomId);
-        if(messages.length) {
+        if (messages.length) {
             this.lastMessage = await populateHistory(this.history, messages);
         }
         this.listenSend();
@@ -227,7 +240,11 @@ class Chat {
 
     listenSend() {
         document.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter' && e.target === this.input && this.input.value.length) {
+            if (
+                e.key === 'Enter' &&
+                e.target === this.input &&
+                this.input.value.length
+            ) {
                 this.write();
             }
         });
@@ -240,18 +257,18 @@ class Chat {
 
     async write() {
         const message = this.input.value;
-        if(message[0] === '/') {
+        if (message[0] === '/') {
             switch (message) {
                 case '/invite':
                     this.inviteScript();
-                    return ;
+                    return;
                 case '/createRef':
                     this.createRef();
-                    return ;
+                    return;
                 case '/exit':
                 case '/quit':
-                    document.location.href = "/";
-                    return ;
+                    document.location.href = '/';
+                    return;
             }
         }
         this.postMessage(message);
@@ -265,37 +282,37 @@ class Chat {
                 'Content-Type': 'application/json'
             }
         })
-        .then((response) => response.json())
-        .then((response) => {
-            const { ref } = response;
-            const link = document.location.origin + '/ref/' + ref;
-            const div = document.createElement('div');
-            div.classList.add('ref-block');
-            const p = document.createElement('p');
-            p.innerHTML = link;
-            div.appendChild(p);
-            const inp = document.createElement('input');
-            inp.value = link;
-            inp.setAttribute('readonly','readonly');
-            div.appendChild(inp);
-            const btn = document.createElement('button');
-            btn.classList.add('btn');
-            btn.setAttribute('type','button');
-            btn.innerHTML = 'copy';
-            div.appendChild(btn);
+            .then((response) => response.json())
+            .then((response) => {
+                const { ref } = response;
+                const link = document.location.origin + '/ref/' + ref;
+                const div = document.createElement('div');
+                div.classList.add('ref-block');
+                const p = document.createElement('p');
+                p.innerHTML = link;
+                div.appendChild(p);
+                const inp = document.createElement('input');
+                inp.value = link;
+                inp.setAttribute('readonly', 'readonly');
+                div.appendChild(inp);
+                const btn = document.createElement('button');
+                btn.classList.add('btn');
+                btn.setAttribute('type', 'button');
+                btn.innerHTML = 'copy';
+                div.appendChild(btn);
 
-            btn.addEventListener('click', ()=>{
-                navigator.clipboard.writeText(link);
+                btn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(link);
+                });
+
+                const modal = new Modal(div);
+                modal.onClose = () => {
+                    self.input.focus();
+                };
+            })
+            .catch((error) => {
+                console.error('Error:', error);
             });
-
-            const modal = new Modal(div);
-            modal.onClose = () => {
-                self.input.focus();
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
     }
 
     inviteScript() {
@@ -305,7 +322,7 @@ class Chat {
         modal.onClose = () => {
             self.input.focus();
             member.content.remove();
-        }
+        };
     }
 
     clearInput() {
@@ -320,12 +337,12 @@ class Chat {
             },
             body: JSON.stringify({ message })
         })
-        .then(() => {
-            this.clearInput();
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+            .then(() => {
+                this.clearInput();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
 
     async listenSSE() {
@@ -334,48 +351,47 @@ class Chat {
         const self = this;
         const connect = async () => {
             const evtSource = new EventSource(`/stream/${self.roomId}`);
-            evtSource.onmessage =  (e) => {
+            evtSource.onmessage = (e) => {
                 self.updateMessages.bind(self)(e);
             };
             evtSource.onerror = () => {
                 evtSource.close();
                 retryCount++;
-                if(retryCount < 15) {
-                    if(retryCount === 5) {
+                if (retryCount < 15) {
+                    if (retryCount === 5) {
                         retryDelay = 1e4;
                     } else if (retryCount === 10) {
                         retryDelay = 6e4;
                     }
 
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         connect();
                     }, retryDelay);
                 } else {
                     console.error(new Error(`Can't reconect to sse stream`));
                 }
-            }
+            };
         };
         connect();
     }
 
-    async updateMessages(event){
+    async updateMessages(event) {
         const updates = await getRoomUpdates(this.roomId, this.lastMessage);
-        if(updates.length) {
+        if (updates.length) {
             this.lastMessage = await populateHistory(this.history, updates);
         }
     }
 }
 
-
-async function populateHistory (history, messages) {
+async function populateHistory(history, messages) {
     let lastMessage;
     let lastMessageElement;
 
-    if(!lastMessage && messages[0].id) {
+    if (!lastMessage && messages[0].id) {
         lastMessage = messages[0].id;
     }
     for (const message of messages) {
-        const id = parseInt(message.id)
+        const id = parseInt(message.id);
         if (id > lastMessage) {
             lastMessage = id;
         }
@@ -386,7 +402,6 @@ async function populateHistory (history, messages) {
     lastMessageElement.scrollIntoView();
     return Promise.resolve(lastMessage);
 }
-
 
 function coverMessage(message) {
     const div = document.createElement('div');

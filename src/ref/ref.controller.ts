@@ -3,14 +3,10 @@ import { createRef, getRef } from '.';
 import { call404, checkRegisterData, Register } from '../common';
 import { IRegisterUser } from '../interfaces';
 
-
-export async function postRefReq(
-    request: Request,
-    response: Response
-) {
+export async function postRefReq(request: Request, response: Response) {
     const result = await createRef(request.body.user.id);
 
-    return response.json({ref: result});
+    return response.json({ ref: result });
 }
 
 export async function checkRegisterDataReq(
@@ -24,7 +20,7 @@ export async function checkRegisterDataReq(
     const refName = String(request.params.ref_name);
     const ref = await getRef(refName);
 
-    if(!ref?.id) {
+    if (!ref?.id) {
         const html = await call404();
         return response.status(404).send(html);
     } else {
@@ -33,10 +29,7 @@ export async function checkRegisterDataReq(
     }
 }
 
-export async function registerReq(
-    request: Request,
-    response: Response
-) {
+export async function registerReq(request: Request, response: Response) {
     const user: IRegisterUser = {
         name: request.body?.name,
         password: request.body?.password
@@ -44,7 +37,7 @@ export async function registerReq(
     const refName = String(request.params.ref_name);
     const ref = await getRef(refName);
 
-    if(!ref?.id) {
+    if (!ref?.id) {
         const html = await call404();
         return response.status(404).send(html);
     } else {

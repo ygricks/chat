@@ -1,13 +1,19 @@
-function validate (name, pass, pass2) {
+function validate(name, pass, pass2) {
     const validPass = pass.length >= 6 && pass.length <= 20;
     const validPass2 = validPass && pass == pass2;
     const escapedName = name.match(/[a-z,A-Z,0-9]+/g)?.join('');
-    const validName = escapedName === name && name.length >= 3 && name.length < 10;
-    return {validName, validPass, validPass2};
+    const validName =
+        escapedName === name && name.length >= 3 && name.length < 10;
+    return { validName, validPass, validPass2 };
 }
 
 function colorize(element, status) {
-    const cls = status===-1 ? 'border-golden' : (status ? 'border-green' : 'border-red');
+    const cls =
+        status === -1
+            ? 'border-golden'
+            : status
+            ? 'border-green'
+            : 'border-red';
     element.className = '';
     element.classList.add(cls);
 }
@@ -18,13 +24,15 @@ function start_ref() {
     const log = document.querySelector('input[name="password"]');
     const log1 = document.querySelector('input[name="password_check"]');
 
-    
-
     const checkBtn = document.querySelector('button#check');
     const registerBtn = document.querySelector('button#register');
 
     checkBtn.addEventListener('click', () => {
-        const {validName, validPass, validPass2} = validate(nameEl.value, log.value, log1.value);
+        const { validName, validPass, validPass2 } = validate(
+            nameEl.value,
+            log.value,
+            log1.value
+        );
 
         colorize(nameEl, validName ? -1 : false);
         colorize(log, validPass ? -1 : false);
@@ -37,23 +45,27 @@ function start_ref() {
             },
             body: JSON.stringify({ name: nameEl.value, password: log.value })
         })
-        .then((response) => response.json())
-        .then(data => {
-            const done = !!data?.done;
-            colorize(nameEl, done);
-            colorize(log, done);
-            colorize(log1, done);
-        });
+            .then((response) => response.json())
+            .then((data) => {
+                const done = !!data?.done;
+                colorize(nameEl, done);
+                colorize(log, done);
+                colorize(log1, done);
+            });
     });
 
     registerBtn.addEventListener('click', () => {
-        const {validName, validPass, validPass2} = validate(nameEl.value, log.value, log1.value);
+        const { validName, validPass, validPass2 } = validate(
+            nameEl.value,
+            log.value,
+            log1.value
+        );
 
-        if(!validName || !validPass || !validPass2) {
+        if (!validName || !validPass || !validPass2) {
             colorize(nameEl, validName ? -1 : false);
             colorize(log, validPass ? -1 : false);
             colorize(log1, validPass2 ? -1 : false);
-            return ;
+            return;
         }
 
         fetch(`/api/ref/${refId}/register`, {
@@ -63,19 +75,19 @@ function start_ref() {
             },
             body: JSON.stringify({ name: nameEl.value, password: log.value })
         })
-        .then((response) => response.json())
-        .then(data => {
-            if(data.done) {
-                window.location.href = "/login";
-            }
-        })
-        .catch((err)=>{
-            throw new Error(err);
-        })
-    })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.done) {
+                    window.location.href = '/login';
+                }
+            })
+            .catch((err) => {
+                throw new Error(err);
+            });
+    });
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', () => {
     const ref = window.location.pathname.split('/')[1];
     if (ref === 'ref') {
         start_ref();
