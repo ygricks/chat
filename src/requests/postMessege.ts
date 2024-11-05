@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { insert, query, queryOne } from '../common';
+import { insert, queryOne } from '../common';
 import { SingletonEventBus } from '../common/SingletonEventBus';
 import { IResponseMessage } from '../interfaces';
 

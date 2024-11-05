@@ -71,7 +71,6 @@ app.get('/stream/:id', isAuthorized, async (request, res) => {
 
     const bus = SingletonEventBus.getInstance();
     const callback = function (e: number) {
-        console.log('>>> on room ' + roomId, e);
         const chunk = JSON.stringify({ mess: 'got new message' });
         res.write(`data: ${chunk}\n\n`);
     };
