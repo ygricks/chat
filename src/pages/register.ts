@@ -1,4 +1,4 @@
-import { call404, UseGeneralTemplate } from '../common';
+import { ErrorCode, UseGeneralTemplate } from '../common';
 
 import { Request, Response } from 'express';
 import { getRef } from '../modules/ref';
@@ -37,10 +37,10 @@ export async function pageRegister(request: Request, response: Response) {
         </div>`;
 
     if (!ref?.id) {
-        const html = await call404();
+        const html = await ErrorCode({code: '404', title: 'page not found'});
         return response.status(404).send(html);
     }
-    const data = UseGeneralTemplate({
+    const data = await UseGeneralTemplate({
         body: content,
         head: '<script src="/ref.js"></script>',
         title: '--register--'

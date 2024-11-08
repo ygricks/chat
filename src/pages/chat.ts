@@ -22,7 +22,7 @@ export async function pageRoomChat(request: Request, response: Response) {
                 <div id="chat-send">⌲</div>
             </div>
         </div>`;
-    const data = UseGeneralTemplate({
+    const data = await UseGeneralTemplate({
         body: content,
         head: '<script src="/chat.js"></script>',
         title: '--chat-room--'

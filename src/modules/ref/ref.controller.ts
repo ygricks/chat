@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { createRef, getRef } from '.';
-import { call404, checkRegisterData, Register } from '../../common';
+import { checkRegisterData, ErrorCode, Register } from '../../common';
 import { IRegisterUser } from '../../interfaces';
 
 export async function postRefReq(request: Request, response: Response) {
@@ -21,7 +21,7 @@ export async function checkRegisterDataReq(
     const ref = await getRef(refName);
 
     if (!ref?.id) {
-        const html = await call404();
+        const html = await ErrorCode({code: '404', title: 'page not found'});
         return response.status(404).send(html);
     } else {
         const check = await checkRegisterData(user);
@@ -38,7 +38,7 @@ export async function registerReq(request: Request, response: Response) {
     const ref = await getRef(refName);
 
     if (!ref?.id) {
-        const html = await call404();
+        const html = await ErrorCode({code: '404', title: 'page not found'});
         return response.status(404).send(html);
     } else {
         const register = await Register(refName, user);

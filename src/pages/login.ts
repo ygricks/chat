@@ -2,7 +2,7 @@ import { UseGeneralTemplate } from '../common';
 
 import { Request, Response } from 'express';
 
-export function pageLogin(request: Request, response: Response) {
+export async function pageLogin(request: Request, response: Response) {
     const content = `
             <div class="flex-container">
             <form id="loginform" class="flex-row" action="/api/login" method="post">
@@ -23,7 +23,7 @@ export function pageLogin(request: Request, response: Response) {
                 </div>
             </form>
         </div>`;
-    const data = UseGeneralTemplate({
+    const data = await UseGeneralTemplate({
         body: content,
         head: '',
         title: '--login--'

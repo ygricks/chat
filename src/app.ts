@@ -8,7 +8,7 @@ import {
     isAuthorized,
     SingletonEventBus,
     postLogin,
-    call404
+    ErrorCode
 } from './common';
 import { pageLogin, pageMain, pageRegister, pageRoomChat } from './pages';
 import {
@@ -83,7 +83,7 @@ app.get('/stream/:id', isAuthorized, async (request, res) => {
 });
 
 app.use(async (req, res, next) => {
-    const html = await call404();
+    const html = await ErrorCode({code: '404', title: 'page not found'});
     res.status(404).send(html);
 });
 

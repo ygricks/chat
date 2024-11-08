@@ -2,10 +2,12 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Error 404</title>
+        <title><tag>code</tag> - <tag>title</tag></title>
         <style>
             body {
                 height: 100vh;
+                background: black;
+                background: radial-gradient(circle, grey 0%, black 75%);
             }
             #box {
                 display: flex;
@@ -18,10 +20,13 @@
                 height: 100px;
                 text-align: center;
                 line-height: 100px;
+                background: grey;
+                background: radial-gradient(circle, white 0%, rgb(115,115,115) 50%);
+                border-radius: 50%; 
             }
         </style>
     </head>
     <body>
-        <div id="box"><div>404</div></div>
+        <div id="box"><div title="<tag>title</tag>"><tag>code</tag></div></div>
     </body>
 </html>
