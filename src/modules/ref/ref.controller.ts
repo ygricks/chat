@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { createRef, getRef } from '.';
-import { call404, checkRegisterData, Register } from '../common';
-import { IRegisterUser } from '../interfaces';
+import { call404, checkRegisterData, Register } from '../../common';
+import { IRegisterUser } from '../../interfaces';
 
 export async function postRefReq(request: Request, response: Response) {
     const result = await createRef(request.body.user.id);

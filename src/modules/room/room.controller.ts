@@ -1,15 +1,14 @@
 import { Request, Response } from 'express';
 import {
     createRoom,
-    roomGetMessages,
-    roomGetUpdates,
     roomGetUserSeats,
     hasUserInRoom,
     roomDelete,
     seatDelete,
     roomGetOnlyMembers,
     syncRoomMembers
-} from '../model';
+} from './room.model';
+import { roomGetUpdates } from '../message';
 
 export async function createRoomReq(request: Request, response: Response) {
     const userId = parseInt(request.body.user.id);
@@ -30,24 +29,6 @@ export async function getRoomsReq(
     const userId = parseInt(request.body.user.id);
     const result = await roomGetUserSeats(userId);
     return response.json(result);
-}
-
-export async function getRoomMessagesReq(
-    request: Request,
-    response: Response
-): Promise<Response> {
-    const roomId = parseInt(request.params.id);
-
-    const seat = await hasUserInRoom(roomId, request.body.user.id);
-    if (!seat) {
-        return response
-            .status(403)
-            .json({ error: 'you are not in that room!' });
-    }
-
-    const data = await roomGetMessages(request.body.user.id, roomId);
-
-    return response.json(data);
 }
 
 export async function getRoomUpdatesReq(request: Request, response: Response) {

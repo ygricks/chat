@@ -1,6 +1,6 @@
 import { UseGeneralTemplate } from '../common';
 import { Request, Response } from 'express';
-import { hasUserInRoom } from '../model';
+import { hasUserInRoom } from '../modules/room';
 
 export async function pageRoomChat(request: Request, response: Response) {
     const userId = request.body.user.id;

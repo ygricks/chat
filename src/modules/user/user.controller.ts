@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { hasUserInRoom } from '../model';
 import { getUsersNotInRoom } from '.';
+import { hasUserInRoom } from '../room';
 
 export async function getUsersInviteReq(
     request: Request,

@@ -1,6 +1,8 @@
 import express from 'express';
 import { config } from 'dotenv';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+
 import {
     safeCall,
     isAuthorized,
@@ -8,22 +10,20 @@ import {
     postLogin,
     call404
 } from './common';
-import cookieParser from 'cookie-parser';
-import { postMessage } from './requests';
 import { pageLogin, pageMain, pageRegister, pageRoomChat } from './pages';
 import {
     createRoomReq,
     deleteRoomReq,
     deleteSeatReq,
     getRoomMembersReq,
-    getRoomMessagesReq,
     getRoomsReq,
     getRoomUpdatesReq,
+    hasUserInRoom,
     postRoomMembersReq
-} from './controller';
-import { hasUserInRoom } from './model';
-import { getUsersInviteReq } from './user';
-import { checkRegisterDataReq, postRefReq, registerReq } from './ref';
+} from './modules/room';
+import { getUsersInviteReq } from './modules/user';
+import { checkRegisterDataReq, postRefReq, registerReq } from './modules/ref';
+import { getRoomMessagesReq, postMessageReq } from './modules/message';
 
 config();
 
@@ -46,7 +46,7 @@ app.delete('/api/room/:id', isAuthorized, safeCall(deleteRoomReq));
 app.delete('/api/room/seat/:id', isAuthorized, safeCall(deleteSeatReq));
 app.get('/api/room/:rid/:lmid', isAuthorized, safeCall(getRoomUpdatesReq));
 app.post('/api/room', isAuthorized, safeCall(createRoomReq));
-app.post('/api/room/:id', isAuthorized, safeCall(postMessage));
+app.post('/api/room/:id', isAuthorized, safeCall(postMessageReq));
 app.post('/api/login', safeCall(postLogin));
 // register
 app.post('/api/ref', isAuthorized, safeCall(postRefReq));

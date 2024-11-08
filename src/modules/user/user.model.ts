@@ -1,4 +1,4 @@
-import { query } from '../common';
+import { query } from '../../common';
 
 type InviteUser = {
     id: number;

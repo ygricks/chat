@@ -1,5 +1,5 @@
-import { insert, queryOne } from '../common';
-import { IRef } from '../interfaces';
+import { insert, queryOne } from '../../common';
+import { IRef } from '../../interfaces';
 
 export async function createRef(userId: number) {
     const ref = {

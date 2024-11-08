@@ -1,6 +1,6 @@
 import { QueryResult } from 'pg';
-import { insert, insertMany, query, queryOne, remove } from '../common';
-import { IMessage, IRoomSeat, IUser } from '../interfaces';
+import { insert, insertMany, query, queryOne, remove } from '../../common';
+import { IMessage, IRoomSeat, IUser } from '../../interfaces';
 
 export async function createRoom(userId: number, title: string) {
     const roomId = await insert('rooms', {
@@ -75,28 +75,6 @@ export async function syncRoomMembers(roomId: number, users: number[]) {
     const manim = `${added}:${delited}`;
 
     return manim;
-}
-
-export async function roomGetMessages(userId: number, roomId: number) {
-    return query<IMessage[]>(
-        'SELECT sub.* FROM (' +
-            'SELECT mt.id, mt.created_at, mt.mess, ut.name, mt.created_by=$1 AS author FROM mess AS mt LEFT JOIN users AS ut ON ut.id=mt.created_by WHERE mt.room_id=$2 ORDER BY mt.id DESC LIMIT 20' +
-            ') sub ORDER BY id ASC;',
-        [userId, roomId]
-    );
-}
-
-export async function roomGetUpdates(
-    userId: number,
-    roomId: number,
-    lastMessId: number
-) {
-    return query<IMessage[]>(
-        'SELECT sub.* FROM (' +
-            'SELECT mt.id, mt.created_at, mt.mess, ut.name, mt.created_by=$1 AS author FROM mess AS mt LEFT JOIN users AS ut ON ut.id=mt.created_by WHERE mt.room_id=$2 AND mt.id > $3 ORDER BY mt.id DESC LIMIT 30' +
-            ') sub ORDER BY id ASC;',
-        [userId, roomId, lastMessId]
-    );
 }
 
 export async function roomDelete(roomId: number) {

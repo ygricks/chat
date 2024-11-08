@@ -1,7 +1,7 @@
 import { call404, UseGeneralTemplate } from '../common';
 
 import { Request, Response } from 'express';
-import { getRef } from '../ref';
+import { getRef } from '../modules/ref';
 
 export async function pageRegister(request: Request, response: Response) {
     const refName = String(request.params.ref_name);

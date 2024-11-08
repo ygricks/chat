@@ -104,7 +104,7 @@ export async function checkRegisterData(user: IRegisterUser): Promise<IResult> {
         });
     }
     const userExist = await query<{ id: number }[]>(
-        'SELECT id FROM users WHERE name=$1',
+        'SELECT id FROM users WHERE name=$1;',
         [login]
     );
     if (userExist.length) {
