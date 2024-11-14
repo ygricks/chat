@@ -24,9 +24,9 @@ export async function UseGeneralTemplate(data: templateParam): Promise<string> {
 }
 
 type ErrorCodeType = {
-    code: string, 
-    title: string,
-}
+    code: string;
+    title: string;
+};
 
 export async function ErrorCode(data: ErrorCodeType): Promise<string> {
     let html = readFileSync(

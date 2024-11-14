@@ -37,7 +37,7 @@ export async function pageRegister(request: Request, response: Response) {
         </div>`;
 
     if (!ref?.id) {
-        const html = await ErrorCode({code: '404', title: 'page not found'});
+        const html = await ErrorCode({ code: '404', title: 'page not found' });
         return response.status(404).send(html);
     }
     const data = await UseGeneralTemplate({

@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import {
     createRoom,
-    roomGetUserSeats,
+    roomGetSeats,
     hasUserInRoom,
     roomDelete,
     seatDelete,
     roomGetOnlyMembers,
-    syncRoomMembers
+    syncRoomMembers,
+    getRoomData
 } from './room.model';
 import { roomGetUpdates } from '../message';
 
@@ -27,8 +28,27 @@ export async function getRoomsReq(
     response: Response
 ): Promise<Response> {
     const userId = parseInt(request.body.user.id);
-    const result = await roomGetUserSeats(userId);
+    const result = await roomGetSeats(userId);
     return response.json(result);
+}
+
+export async function getRoomDataReq(
+    request: Request,
+    response: Response
+): Promise<Response> {
+    const roomId = parseInt(request.params.id);
+    const userId = parseInt(request.body.user.id);
+
+    const seat = await hasUserInRoom(roomId, userId);
+    if (!seat) {
+        return response
+            .status(403)
+            .json({ error: 'you are not in that room!' });
+    }
+
+    const roomData = await getRoomData(roomId);
+
+    return response.json(roomData);
 }
 
 export async function getRoomUpdatesReq(request: Request, response: Response) {
@@ -38,11 +58,7 @@ export async function getRoomUpdatesReq(request: Request, response: Response) {
     if (!roomId || (!lastMessId && lastMessId !== 0)) {
         return response.json({ error: 'Incorect data' });
     }
-    const updates = await roomGetUpdates(
-        request.body.user.id,
-        roomId,
-        lastMessId
-    );
+    const updates = await roomGetUpdates(roomId, lastMessId);
     return response.json(updates);
 }
 

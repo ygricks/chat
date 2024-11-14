@@ -15,6 +15,7 @@ import {
     createRoomReq,
     deleteRoomReq,
     deleteSeatReq,
+    getRoomDataReq,
     getRoomMembersReq,
     getRoomsReq,
     getRoomUpdatesReq,
@@ -23,7 +24,7 @@ import {
 } from './modules/room';
 import { getUsersInviteReq } from './modules/user';
 import { checkRegisterDataReq, postRefReq, registerReq } from './modules/ref';
-import { getRoomMessagesReq, postMessageReq } from './modules/message';
+import { postMessageReq } from './modules/message';
 
 config();
 
@@ -38,7 +39,7 @@ app.get('/login', safeCall(pageLogin));
 app.get('/room/:id', isAuthorized, safeCall(pageRoomChat));
 
 app.get('/api/rooms', isAuthorized, safeCall(getRoomsReq));
-app.get('/api/room/:id', isAuthorized, safeCall(getRoomMessagesReq));
+app.get('/api/room/:id', isAuthorized, safeCall(getRoomDataReq));
 app.get('/api/user', isAuthorized, safeCall(getUsersInviteReq));
 app.get('/api/room/:rid/members', isAuthorized, safeCall(getRoomMembersReq));
 app.post('/api/room/:rid/members', isAuthorized, safeCall(postRoomMembersReq));
@@ -70,8 +71,8 @@ app.get('/stream/:id', isAuthorized, async (request, res) => {
     });
 
     const bus = SingletonEventBus.getInstance();
-    const callback = function (e: number) {
-        const chunk = JSON.stringify({ mess: 'got new message' });
+    const callback = function (e: object | string) {
+        const chunk = JSON.stringify({ type: 'newMessage', event: e });
         res.write(`data: ${chunk}\n\n`);
     };
     bus.on(`room_${roomId}`, callback);
@@ -83,7 +84,7 @@ app.get('/stream/:id', isAuthorized, async (request, res) => {
 });
 
 app.use(async (req, res, next) => {
-    const html = await ErrorCode({code: '404', title: 'page not found'});
+    const html = await ErrorCode({ code: '404', title: 'page not found' });
     res.status(404).send(html);
 });
 

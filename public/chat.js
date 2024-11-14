@@ -51,7 +51,7 @@ class Member {
         fetch(`/api/room/${this.roomId}/members`)
             .then((response) => response.json())
             .then((data) => {
-                if (data?.members?.length) {
+                if (data && data?.members) {
                     this.build(data);
                 } else if (data?.error) {
                     this.content.innerHTML = '';
@@ -212,6 +212,8 @@ class Chat {
         let problem = [];
 
         this.roomId = parseInt(window.location.pathname.split('/').pop());
+
+        this.userId = parseJwt(getCookieValue('TOKEN'))['id'];
         if (this.roomId < 1) {
             problem.push(`room id problem "${roomId}"`);
         }
@@ -229,16 +231,56 @@ class Chat {
         this.lastMessage = 0;
     }
 
-    async start() {
-        const messages = await getMessages(this.roomId);
-        if (messages.length) {
-            this.lastMessage = await populateHistory(this.history, messages);
+    addUsers(users) {
+        if (!this.users) {
+            this.users = {};
         }
-        this.listenSend();
+        for (const user of users) {
+            this.users[user.id] = {
+                id: user.id,
+                name: user.name,
+                color: Math.floor(
+                    Math.abs(Math.sin(user.id) * 16777215)
+                ).toString(16)
+            };
+        }
+    }
+
+    userAvatar(userId) {
+        if (!this.avatars) {
+            this.avatars = {};
+        }
+        if (!this.avatars[userId]) {
+            const avatar = document.createElement('div');
+            const user = this.users[userId];
+            const style = user
+                ? `background:#${user.color}`
+                : 'background:white;border:1px solid red';
+            avatar.setAttribute('style', style);
+            avatar.setAttribute('title', user ? user.name : 'was removed');
+            avatar.classList.add('avatar');
+            avatar.innerHTML = user ? user.name[0].toUpperCase() : 'E';
+            this.avatars[userId] = avatar;
+            return avatar;
+        }
+        return this.avatars[userId].cloneNode(true);
+    }
+
+    async start() {
+        const chatData = await getChatData(this.roomId);
+        const { messages, users } = chatData;
+        this.addUsers(users);
+        if (messages.length) {
+            this.lastMessage = await this.populateHistory(
+                this.history,
+                messages
+            );
+        }
+        this.listenSendTriggers();
         this.listenSSE();
     }
 
-    listenSend() {
+    listenSendTriggers() {
         document.addEventListener('keyup', (e) => {
             if (
                 e.key === 'Enter' &&
@@ -351,8 +393,19 @@ class Chat {
         const self = this;
         const connect = async () => {
             const evtSource = new EventSource(`/stream/${self.roomId}`);
-            evtSource.onmessage = (e) => {
-                self.updateMessages.bind(self)(e);
+            evtSource.onmessage = async (e) => {
+                const event = JSON.parse(e.data);
+                if (event.type === 'newMessage') {
+                    // TODO inspect
+                    this.lastMessage = await self.populateHistory(
+                        self.history,
+                        [event.event]
+                    );
+                } else {
+                    console.warn('unknown type', event);
+                }
+                // TODO remove all roots
+                // self.updateMessages.bind(self)(e);
             };
             evtSource.onerror = () => {
                 evtSource.close();
@@ -378,49 +431,59 @@ class Chat {
     async updateMessages(event) {
         const updates = await getRoomUpdates(this.roomId, this.lastMessage);
         if (updates.length) {
-            this.lastMessage = await populateHistory(this.history, updates);
+            this.lastMessage = await this.populateHistory(
+                this.history,
+                updates
+            );
         }
     }
-}
+    // --------------
 
-async function populateHistory(history, messages) {
-    let lastMessage;
-    let lastMessageElement;
+    async populateHistory(history, messages) {
+        let lastMessage;
+        let lastMessageElement;
 
-    if (!lastMessage && messages[0].id) {
-        lastMessage = messages[0].id;
-    }
-    for (const message of messages) {
-        const id = parseInt(message.id);
-        if (id > lastMessage) {
-            lastMessage = id;
+        if (!lastMessage && messages[0].id) {
+            lastMessage = messages[0].id;
         }
-        const messElement = coverMessage(message);
-        history.appendChild(messElement);
-        lastMessageElement = messElement;
+        for (const message of messages) {
+            const id = parseInt(message.id);
+            if (id > lastMessage) {
+                lastMessage = id;
+            }
+            const messElement = this.coverMessage(message);
+            history.appendChild(messElement);
+            lastMessageElement = messElement;
+        }
+        lastMessageElement.scrollIntoView();
+        return Promise.resolve(lastMessage);
     }
-    lastMessageElement.scrollIntoView();
-    return Promise.resolve(lastMessage);
+
+    coverMessage(message) {
+        const div = document.createElement('div');
+        const classes = ['mess'];
+
+        const me = message.created_by == this.userId;
+        if (me) {
+            classes.push('me');
+        } else {
+            const avatar = this.userAvatar(message.created_by);
+            div.appendChild(avatar);
+        }
+
+        div.classList.add(...classes);
+        div.dataset.id = message.id;
+        div.appendChild(document.createTextNode(message.mess));
+        const span = document.createElement('span');
+        const dt = new Date(message.created_at);
+        const min = dt.getMinutes();
+        span.textContent = dt.getHours() + ':' + (min < 10 ? '0' + min : min);
+        div.appendChild(span);
+        return div;
+    }
 }
 
-function coverMessage(message) {
-    const div = document.createElement('div');
-    const classes = ['mess'];
-    if (message.author === true) {
-        classes.push('me');
-    }
-    div.classList.add(...classes);
-    div.dataset.id = message.id;
-    div.textContent = message.mess;
-    const span = document.createElement('span');
-    const dt = new Date(message.created_at);
-    const min = dt.getMinutes();
-    span.textContent = dt.getHours() + ':' + (min < 10 ? '0' + min : min);
-    div.appendChild(span);
-    return div;
-}
-
-async function getMessages(roomId) {
+async function getChatData(roomId) {
     const path = `/api/room/${roomId}`;
     const response = await fetch(path);
     if (!response.ok) {
@@ -440,4 +503,28 @@ async function getRoomUpdates(roomId, lastMessage) {
     }
     const data = await response.json();
     return Promise.resolve(data);
+}
+
+function parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+        window
+            .atob(base64)
+            .split('')
+            .map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+}
+
+function getCookieValue(name) {
+    const regex = new RegExp(`(^| )${name}=([^;]+)`);
+    const match = document.cookie.match(regex);
+    if (match) {
+        return match[2];
+    }
 }

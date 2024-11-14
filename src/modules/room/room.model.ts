@@ -1,6 +1,6 @@
-import { QueryResult } from 'pg';
 import { insert, insertMany, query, queryOne, remove } from '../../common';
-import { IMessage, IRoomSeat, IUser } from '../../interfaces';
+import { IRoomSeat, IUser } from '../../interfaces';
+import { roomGetMessages } from '../message';
 
 export async function createRoom(userId: number, title: string) {
     const roomId = await insert('rooms', {
@@ -21,33 +21,46 @@ export async function createRoom(userId: number, title: string) {
     return { roomId, seatCreated };
 }
 
-export async function roomGetUserSeats(user_id: number): Promise<IRoomSeat[]> {
+export async function roomGetSeats(userId: number): Promise<IRoomSeat[]> {
     return query<IRoomSeat[]>(
         'SELECT ST.room_id, ST.author, RT.title FROM seats AS ST LEFT JOIN rooms AS RT ON RT.id = ST.room_id WHERE user_id=$1;',
-        [user_id]
+        [userId]
     );
+}
+
+interface Member extends Omit<IUser, 'password'> {
+    author: boolean;
+}
+
+export async function roomGetUsers(roomId: number): Promise<Member[]> {
+    return query<Member[]>(
+        'SELECT u.id, u.name, s.author FROM users AS u LEFT JOIN seats AS s ON s.user_id = u.id WHERE s.room_id = $1;',
+        [roomId]
+    );
+}
+
+type PublicUser = Omit<Member, 'author'>;
+
+export async function roomGetOnlyMembers(
+    roomId: number
+): Promise<PublicUser[]> {
+    const users = await roomGetUsers(roomId);
+    return Promise.resolve(users.filter((u) => !u.author) as PublicUser[]);
 }
 
 export async function hasUserInRoom(
-    room_id: number,
-    user_id: number
+    roomId: number,
+    userId: number
 ): Promise<{ room_id: number; user_id: number; author: boolean }> {
     return queryOne<{ room_id: number; user_id: number; author: boolean }>(
         'SELECT room_id, user_id, author FROM seats WHERE room_id=$1 AND user_id=$2 LIMIT 1;',
-        [room_id, user_id]
-    );
-}
-
-export async function roomGetOnlyMembers(room_id: number) {
-    return query<{ id: string; name: string }[]>(
-        'SELECT id, name FROM users WHERE id IN (SELECT user_id from seats WHERE room_id=$1 AND author=false);',
-        [room_id]
+        [roomId, userId]
     );
 }
 
 export async function syncRoomMembers(roomId: number, users: number[]) {
     const members: number[] = await roomGetOnlyMembers(roomId).then((data) => {
-        return data.map((u) => parseInt(u.id));
+        return data.map((u) => parseInt(String(u.id)));
     });
     const toAdd = users.filter((id) => !members.includes(id));
     const toDel = members.filter((id) => !users.includes(id));
@@ -88,4 +101,13 @@ export async function roomDelete(roomId: number) {
 export async function seatDelete(roomId: number, userId: number) {
     const seat = await remove('seats', { room_id: roomId, user_id: userId });
     return Promise.resolve({ removed: !!seat?.rowCount });
+}
+
+export async function getRoomData(roomId: number) {
+    const messages = await roomGetMessages(roomId);
+    const roomUsers = await roomGetUsers(roomId);
+    const users = roomUsers.map((u) => {
+        return { id: u.id, name: u.name };
+    });
+    return Promise.resolve({ messages, users });
 }

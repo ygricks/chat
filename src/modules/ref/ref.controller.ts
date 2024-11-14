@@ -21,7 +21,7 @@ export async function checkRegisterDataReq(
     const ref = await getRef(refName);
 
     if (!ref?.id) {
-        const html = await ErrorCode({code: '404', title: 'page not found'});
+        const html = await ErrorCode({ code: '404', title: 'page not found' });
         return response.status(404).send(html);
     } else {
         const check = await checkRegisterData(user);
@@ -38,7 +38,7 @@ export async function registerReq(request: Request, response: Response) {
     const ref = await getRef(refName);
 
     if (!ref?.id) {
-        const html = await ErrorCode({code: '404', title: 'page not found'});
+        const html = await ErrorCode({ code: '404', title: 'page not found' });
         return response.status(404).send(html);
     } else {
         const register = await Register(refName, user);

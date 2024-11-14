@@ -25,7 +25,7 @@ export async function postLogin(
 export class Cookies {
     constructor(private request: Request, private response: Response) {}
     set(name: string, value: string): void {
-        this.response.cookie(name, value, { httpOnly: true });
+        this.response.cookie(name, value); //, { httpOnly: true });
     }
     get(name: string): string | undefined {
         try {
@@ -50,8 +50,7 @@ export async function login(
         return Promise.resolve(false);
     }
     const secret = String(process.env.HASH);
-    const publicUser = Object.assign({}, user) as Partial<IUser>;
-    delete publicUser.password;
+    const publicUser = { id: parseInt(String(user.id)), name: user.name };
     const jwtToken = sign(publicUser, secret, {
         // expired in seconds ( 86400 = 24H )
         expiresIn: 86400 * 7
