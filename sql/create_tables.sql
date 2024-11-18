@@ -35,6 +35,17 @@ CREATE TABLE mess (
 	CONSTRAINT fk_mess_user FOREIGN KEY(created_by) REFERENCES users(id)
 );
 
+CREATE TABLE unread (
+	mess_id BIGINT NOt NULL,
+	room_id BIGINT NOT NULL,
+	user_id BIGINT NOT NULL,
+	created_at TIMESTAMP DEFAULT NOW(),
+	CONSTRAINT fk_unread_mess FOREIGN KEY(mess_id) REFERENCES mess(id),
+	CONSTRAINT fk_unread_room FOREIGN KEY(room_id) REFERENCES rooms(id),
+	CONSTRAINT fk_unread_user FOREIGN KEY(user_id) REFERENCES users(id)
+);
+COMMENT ON COLUMN unread.room_id IS 'dublicate unread.room_id = unread.mess_id>mess.room_id for avoid join';
+
 CREATE TABLE refs (
 	id BIGSERIAL PRIMARY KEY,
 	ref VARCHAR(50),
