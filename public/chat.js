@@ -392,14 +392,14 @@ class Chat {
         let retryDelay = 1e3;
         const self = this;
         const connect = async () => {
-            const evtSource = new EventSource(`/stream/${self.roomId}`);
+            const evtSource = new EventSource(`/stream`);
             evtSource.onmessage = async (e) => {
                 const event = JSON.parse(e.data);
                 if (event.type === 'newMessage') {
                     // TODO inspect
                     this.lastMessage = await self.populateHistory(
                         self.history,
-                        [event.event]
+                        [event.mess]
                     );
                 } else {
                     console.warn('unknown type', event);
@@ -421,7 +421,7 @@ class Chat {
                         connect();
                     }, retryDelay);
                 } else {
-                    console.error(new Error(`Can't reconect to sse stream`));
+                    console.error((new Date).toISOString(), new Error(`Can't reconect to sse stream`));
                 }
             };
         };

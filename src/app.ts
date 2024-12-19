@@ -19,7 +19,6 @@ import {
     getRoomMembersReq,
     getRoomsReq,
     getRoomUpdatesReq,
-    hasUserInRoom,
     postRoomMembersReq
 } from './modules/room';
 import { getUsersInviteReq } from './modules/user';
@@ -55,14 +54,8 @@ app.get('/ref/:ref_name', safeCall(pageRegister));
 app.post('/api/ref/:ref_name/loginCheck', safeCall(checkRegisterDataReq));
 app.post('/api/ref/:ref_name/register', safeCall(registerReq));
 
-app.get('/stream/:id', isAuthorized, async (request, res) => {
+app.get('/stream', isAuthorized, async (request, res) => {
     const userId = request.body.user.id;
-    const roomId = parseInt(request.params.id);
-
-    const seat = await hasUserInRoom(roomId, userId);
-    if (!seat) {
-        return res.status(403).json({ error: 'you are not in that room!' });
-    }
 
     res.writeHead(200, {
         Connection: 'keep-alive',
@@ -72,13 +65,13 @@ app.get('/stream/:id', isAuthorized, async (request, res) => {
 
     const bus = SingletonEventBus.getInstance();
     const callback = function (e: object | string) {
-        const chunk = JSON.stringify({ type: 'newMessage', event: e });
+        const chunk = JSON.stringify(e);
         res.write(`data: ${chunk}\n\n`);
     };
-    bus.on(`room_${roomId}`, callback);
+    bus.on(`user_${userId}`, callback);
 
     res.on('close', () => {
-        bus.detach(`room_${roomId}`, callback);
+        bus.detach(`user_${userId}`, callback);
         res.end();
     });
 });
