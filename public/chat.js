@@ -421,7 +421,10 @@ class Chat {
                         connect();
                     }, retryDelay);
                 } else {
-                    console.error((new Date).toISOString(), new Error(`Can't reconect to sse stream`));
+                    console.error(
+                        new Date().toISOString(),
+                        new Error(`Can't reconect to sse stream`)
+                    );
                 }
             };
         };

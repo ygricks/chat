@@ -41,16 +41,16 @@ export async function postMessage(
         });
     }
     const resp = await insertMany('unread', unreadData, { noId: true });
-    if(!resp) {
-        throw new Error(`Can't create unread mess`)
+    if (!resp) {
+        throw new Error(`Can't create unread mess`);
     }
 
     // sse event > new message, event with unread count
-    const usersIds = allRoomUsers.map((o)=>o.id);
+    const usersIds = allRoomUsers.map((o) => o.id);
     const unreadCount = await getUnreadCount(usersIds);
 
     const bus = SingletonEventBus.getInstance();
-    for(const uId of usersIds) {
+    for (const uId of usersIds) {
         bus.emit(`user_${uId}`, null, {
             type: 'newMessage',
             mess: mess,
