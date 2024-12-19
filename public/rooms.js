@@ -9,13 +9,13 @@ const action = function (button) {
     let span;
     switch (button) {
         case 'quit':
-            span = doSpan(button, '⊝');
+            span = doSpan('quit room', '(-)');
             break;
         case 'remove':
-            span = doSpan(button, '⊗');
+            span = doSpan('romove room', '(X)');
             break;
         case 'create':
-            span = doSpan(button, '⊕ create new room');
+            span = doSpan('create room', '(+) create new room');
             break;
         default:
             throw new Error('wrong button type');

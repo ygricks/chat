@@ -212,7 +212,7 @@ ul#rooms_list {
     color: red;
 }
 
-.action_create, .action_quit, .action_remove {
+.action{
     cursor: pointer;
     font-size: 16px;
 }
