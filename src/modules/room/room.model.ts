@@ -1,5 +1,5 @@
 import { insert, insertMany, query, queryOne, remove } from '../../common';
-import { IRoomSeat, IUser } from '../../interfaces';
+import { IMember, IRoomSeat, IUser } from '../../interfaces';
 import { roomGetMessages } from '../message';
 
 export async function createRoom(userId: number, title: string) {
@@ -106,7 +106,7 @@ export async function seatDelete(roomId: number, userId: number) {
 export async function getRoomData(roomId: number) {
     const messages = await roomGetMessages(roomId);
     const roomUsers = await roomGetUsers(roomId);
-    const users = roomUsers.map((u) => {
+    const users: IMember[] = roomUsers.map((u) => {
         return { id: u.id, name: u.name };
     });
     return Promise.resolve({ messages, users });

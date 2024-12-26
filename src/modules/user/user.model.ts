@@ -15,7 +15,10 @@ export async function getUsersNotInRoom(
     );
 }
 
-export async function getUnreadCount(usersIds: number[]) {
+export type Unread = { [key: string]: number };
+export type UnreadAll = { [key: string]: Unread };
+
+export async function getUnreadCount(usersIds: number[]): Promise<UnreadAll> {
     const template: string = ((len) => {
         let t: string[] = [];
         for (let i = 1; i <= len; i++) {
@@ -32,7 +35,7 @@ export async function getUnreadCount(usersIds: number[]) {
         [...usersIds]
     );
 
-    const sket: { [key: string]: { [key: string]: number } } = {};
+    const sket: UnreadAll = {};
     for (const line of data) {
         const uid = String(line.user_id);
         const rid = String(line.room_id);

@@ -399,7 +399,7 @@ class Chat {
                     // TODO inspect
                     this.lastMessage = await self.populateHistory(
                         self.history,
-                        [event.mess]
+                        [event.data]
                     );
                 } else {
                     console.warn('unknown type', event);

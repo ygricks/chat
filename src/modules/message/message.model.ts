@@ -5,6 +5,7 @@ import {
     queryOne,
     SingletonEventBus
 } from '../../common';
+import { NewMessageEvent } from '../../Event';
 import { IMessage } from '../../interfaces';
 import { roomGetUsers } from '../room';
 import { getUnreadCount } from '../user';
@@ -30,10 +31,10 @@ export async function postMessage(
 
     // unread
     const allRoomUsers = await roomGetUsers(roomId);
-    const onlyMembers = allRoomUsers.filter((u) => u.id != userId);
+    // const onlyMembers = allRoomUsers.filter((u) => u.id != userId);
     const unreadData: { mess_id: number; room_id: number; user_id: number }[] =
         [];
-    for (const user of onlyMembers) {
+    for (const user of allRoomUsers) {
         unreadData.push({
             mess_id: mess.id,
             room_id: roomId,
@@ -51,11 +52,8 @@ export async function postMessage(
 
     const bus = SingletonEventBus.getInstance();
     for (const uId of usersIds) {
-        bus.emit(`user_${uId}`, null, {
-            type: 'newMessage',
-            mess: mess,
-            unread: unreadCount[String(uId)]
-        });
+        const event = new NewMessageEvent(mess, unreadCount[String(uId)]);
+        bus.emit(`user_${uId}`, null, event);
     }
 
     return mess;
