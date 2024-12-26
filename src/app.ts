@@ -28,6 +28,7 @@ import { postMessageReq } from './modules/message';
 config();
 
 const app = express();
+app.disable('x-powered-by');
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
