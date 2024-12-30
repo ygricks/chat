@@ -172,7 +172,11 @@ class Member {
             for (const op of Array.from(self.select.right.options)) {
                 memIds.push(parseInt(op.dataset.id));
             }
-            if (memIds.length) {
+            if (
+                this.select['left'].querySelectorAll('option.inside').length +
+                this.select['right'].querySelectorAll('option:not(.inside)')
+                    .length
+            ) {
                 fetch(`/api/room/${self.roomId}/members`, {
                     method: 'POST',
                     headers: {
