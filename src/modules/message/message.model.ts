@@ -31,19 +31,21 @@ export async function postMessage(
 
     // unread
     const allRoomUsers = await roomGetUsers(roomId);
-    // const onlyMembers = allRoomUsers.filter((u) => u.id != userId);
+    const onlyMembers = allRoomUsers.filter((u) => u.id != userId);
     const unreadData: { mess_id: number; room_id: number; user_id: number }[] =
         [];
-    for (const user of allRoomUsers) {
+    for (const user of onlyMembers) {
         unreadData.push({
             mess_id: mess.id,
             room_id: roomId,
             user_id: user.id
         });
     }
-    const resp = await insertMany('unread', unreadData, { noId: true });
-    if (!resp) {
-        throw new Error(`Can't create unread mess`);
+    if (unreadData.length) {
+        const resp = await insertMany('unread', unreadData, { noId: true });
+        if (!resp) {
+            throw new Error(`Can't create unread mess`);
+        }
     }
 
     // sse event > new message, event with unread count
