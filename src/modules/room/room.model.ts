@@ -86,7 +86,6 @@ export async function syncRoomMembers(roomId: number, users: number[]) {
         added = await insertMany('seats', data, { noId: true });
     }
     const manim = `${added}:${delited}`;
-
     return manim;
 }
 

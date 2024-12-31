@@ -1,11 +1,9 @@
 import { IMember, IMessage } from '../interfaces';
 
-type EventType =
-    | 'newMessage'
-    | 'newMembers'
-    | 'kickMembers'
-    | 'roomKick'
-    | 'roomInvite';
+export enum EventType {
+    NewMessage = 'newMessage',
+    MembersChange = 'membersChange'
+}
 
 type EventData = IMessage | IMember[];
 
