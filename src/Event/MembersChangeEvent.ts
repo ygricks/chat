@@ -1,9 +1,10 @@
-import { IMember } from '../interfaces';
+import { IPublicUser } from '../interfaces';
 import { BaseEvent, EventType } from './BaseEvent';
 
-// @TODO need to implement, is not used yet
+export type MembersChangeType = { add: IPublicUser[]; kick: IPublicUser[] };
+
 export class MembersChangeEvent extends BaseEvent {
-    constructor(members: IMember[]) {
-        super(EventType.MembersChange, members);
+    constructor(eventData: MembersChangeType) {
+        super(EventType.MembersChange, eventData);
     }
 }

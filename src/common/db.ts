@@ -56,6 +56,14 @@ export async function query<Type>(
     }
 }
 
+export function qTemp(len: number, s: number = 1) {
+    let res: string[] = [];
+    for (let n = 0; n < len; n++) {
+        res.push(`$${s + n}`);
+    }
+    return res.join(', ');
+}
+
 export async function queryOne<T>(
     sql: string,
     params: ParamType[] = []
@@ -76,13 +84,7 @@ function prepare(params: GenerycParams) {
         values.push(params[name]);
         update.push(`${name} = $${i + 1}`);
     }
-    const tmp = ((n: number) => {
-        let m: string[] = [];
-        for (let i = 1; i <= n; i++) {
-            m.push(`$${i}`);
-        }
-        return m.join(', ');
-    })(names.length);
+    const tmp = qTemp(names.length);
     return { names, values, update, tmp };
 }
 

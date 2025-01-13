@@ -1,4 +1,4 @@
-export interface IMember {
+export interface IPublicUser {
     id: number;
     name: string;
 }

@@ -1,5 +1,14 @@
-import { insert, insertMany, query, queryOne, remove } from '../../common';
-import { IMember, IRoomSeat, IUser } from '../../interfaces';
+import {
+    insert,
+    insertMany,
+    qTemp,
+    query,
+    queryOne,
+    remove,
+    SingletonEventBus
+} from '../../common';
+import { MembersChangeEvent, MembersChangeType } from '../../Event';
+import { IPublicUser, IRoomSeat } from '../../interfaces';
 import { roomGetMessages } from '../message';
 
 export async function createRoom(userId: number, title: string) {
@@ -28,24 +37,22 @@ export async function roomGetSeats(userId: number): Promise<IRoomSeat[]> {
     );
 }
 
-interface Member extends Omit<IUser, 'password'> {
+interface IRMember extends IPublicUser {
     author: boolean;
 }
 
-export async function roomGetUsers(roomId: number): Promise<Member[]> {
-    return query<Member[]>(
+export async function roomGetUsers(roomId: number): Promise<IRMember[]> {
+    return query<IRMember[]>(
         'SELECT u.id, u.name, s.author FROM users AS u LEFT JOIN seats AS s ON s.user_id = u.id WHERE s.room_id = $1;',
         [roomId]
     );
 }
 
-type PublicUser = Omit<Member, 'author'>;
-
 export async function roomGetOnlyMembers(
     roomId: number
-): Promise<PublicUser[]> {
+): Promise<IPublicUser[]> {
     const users = await roomGetUsers(roomId);
-    return Promise.resolve(users.filter((u) => !u.author) as PublicUser[]);
+    return Promise.resolve(users.filter((u) => !u.author) as IPublicUser[]);
 }
 
 export async function hasUserInRoom(
@@ -58,39 +65,58 @@ export async function hasUserInRoom(
     );
 }
 
-export async function syncRoomMembers(roomId: number, users: number[]) {
-    const members: number[] = await roomGetOnlyMembers(roomId).then((data) => {
-        return data.map((u) => parseInt(String(u.id)));
+export async function syncRoomMembers(
+    roomId: number,
+    usersID: number[],
+    ownerId: number
+) {
+    const users = usersID.length
+        ? await query<IPublicUser[]>(
+              `SELECT id,name FROM users WHERE id IN (${qTemp(
+                  usersID.length
+              )})`,
+              [...usersID]
+          )
+        : [];
+    const members = (await roomGetOnlyMembers(roomId)) as IPublicUser[];
+    const membID = members.map((o) => parseInt(String(o.id)));
+    const all: { [key: string]: IPublicUser } = {};
+    [...users, ...members].map((o) => {
+        all[o.id] = o;
     });
-    const toAdd = users.filter((id) => !members.includes(id));
-    const toDel = members.filter((id) => !users.includes(id));
-    let delited = -1;
-    let added = -1;
+
+    const toAdd = usersID.filter((id) => !membID.includes(id));
+    const toDel = membID.filter((id) => !usersID.includes(id));
+    const eventData: MembersChangeType = { add: [], kick: [] };
+
     if (toDel.length) {
-        const places = Object.keys(toDel)
-            .map((k) => '$' + (2 - -k))
-            .join(', ');
-        const sql = `DELETE FROM seats WHERE room_id=$1 AND user_id IN (${places});`;
-        const result = await query<{ rowCount: number }>(
-            sql,
-            [roomId, ...toDel],
-            { raw: true }
-        );
-        delited = result?.rowCount;
+        const sql = `DELETE FROM seats WHERE room_id=$1 AND user_id IN (${qTemp(
+            toDel.length,
+            2
+        )});`;
+        await query<{ rowCount: number }>(sql, [roomId, ...toDel], {
+            raw: true
+        });
+        for (const uId of toDel) {
+            eventData.kick.push(all[String(uId)]);
+        }
     }
     if (toAdd.length) {
         const data = [];
-        for (const userId of toAdd) {
-            data.push({ room_id: roomId, user_id: userId });
+        for (const uID of toAdd) {
+            data.push({ room_id: roomId, user_id: uID });
+            eventData.add.push(all[String(uID)]);
         }
-        added = await insertMany('seats', data, { noId: true });
+        await insertMany('seats', data, { noId: true });
     }
-    const manim = `${added}:${delited}`;
-    return manim;
+    const bus = SingletonEventBus.getInstance();
+    const event = new MembersChangeEvent(eventData);
+    bus.emit(`user_${ownerId}`, null, event);
+    return Promise.resolve(eventData);
 }
 
 export async function roomDelete(roomId: number) {
-    // maybe  cascade delete ...
+    // @TODO maybe  cascade delete ...
     await remove('mess', { room_id: roomId });
     const seat = await remove('seats', { room_id: roomId });
     const room = await remove('rooms', { id: roomId });
@@ -105,7 +131,7 @@ export async function seatDelete(roomId: number, userId: number) {
 export async function getRoomData(roomId: number) {
     const messages = await roomGetMessages(roomId);
     const roomUsers = await roomGetUsers(roomId);
-    const users: IMember[] = roomUsers.map((u) => {
+    const users: IPublicUser[] = roomUsers.map((u) => {
         return { id: u.id, name: u.name };
     });
     return Promise.resolve({ messages, users });

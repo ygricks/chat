@@ -6,4 +6,4 @@ export * from './IMessage';
 export * from './IRef';
 export * from './IRegisterUser';
 export * from './IResult';
-export * from './IMember';
+export * from './IPublicUser';

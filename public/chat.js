@@ -399,17 +399,27 @@ class Chat {
             const evtSource = new EventSource(`/stream`);
             evtSource.onmessage = async (e) => {
                 const event = JSON.parse(e.data);
-                if (event.type === 'newMessage') {
-                    // TODO inspect
-                    this.lastMessage = await self.populateHistory(
-                        self.history,
-                        [event.data]
-                    );
-                } else {
-                    console.warn('unknown type', event);
+                switch (event.type) {
+                    case 'newMessage': {
+                        // TODO inspect
+                        this.lastMessage = await self.populateHistory(
+                            self.history,
+                            [event.data]
+                        );
+                        break;
+                    }
+                    case 'membersChange': {
+                        if (
+                            Array.isArray(event.data.add) &&
+                            event.data.add.length
+                        ) {
+                            self.addUsers(event.data.add);
+                        }
+                        break;
+                    }
+                    default:
+                        console.warn('unknown type');
                 }
-                // TODO remove all roots
-                // self.updateMessages.bind(self)(e);
             };
             evtSource.onerror = () => {
                 evtSource.close();

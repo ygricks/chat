@@ -94,7 +94,7 @@ export async function postRoomMembersReq(request: Request, response: Response) {
     }
     const users: number[] = ((users = []) =>
         users.map((i: string) => parseInt(i)))(request.body.users);
-    const result = await syncRoomMembers(roomId, users);
+    const result = await syncRoomMembers(roomId, users, request.body.user.id);
     return response.json({ done: 1, result });
 }
 
