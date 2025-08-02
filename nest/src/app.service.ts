@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { UsersService } from './users/users.service';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  constructor(private usersService: UsersService) {}
+
+  async getHello(): Promise<string> {
+    const user = await this.usersService.findOne('igor');
+    const data: Object = <Object>user;
+    delete data['password'];
+    return 'Hello World! ' + JSON.stringify(data);
   }
 }
