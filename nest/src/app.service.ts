@@ -7,7 +7,7 @@ export class AppService {
 
   async getHello(): Promise<string> {
     const user = await this.usersService.findOne('igor');
-    const data: Object = <Object>user;
+    const data: object = <object>user;
     delete data['password'];
     return 'Hello World! ' + JSON.stringify(data);
   }

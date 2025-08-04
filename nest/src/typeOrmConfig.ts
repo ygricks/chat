@@ -1,18 +1,21 @@
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DynamicModule } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-ConfigModule.forRoot();
-
-export function typeOrmConfigFactory(...ents): TypeOrmModuleOptions {
-  return {
-    type: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5400', 10),
-    username: process.env.DB_USER || '_POST_',
-    password: process.env.DB_PASS || '_PASS_',
-    database: process.env.DB_NAME || '_DB_',
-    entities: ents,
-    synchronize: false,
-    logging: false,
-  };
+export function typeOrmConfigFactory(...ents): DynamicModule {
+  return TypeOrmModule.forRootAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (config: ConfigService) => ({
+      type: 'postgres',
+      host: config.get<string>('DB_HOST'),
+      port: config.get<number>('DB_PORT'),
+      username: config.get<string>('DB_USER'),
+      password: config.get<string>('DB_PASS'),
+      database: config.get<string>('DB_NAME'),
+      entities: ents,
+      synchronize: false,
+      logging: false,
+    }),
+  });
 }
