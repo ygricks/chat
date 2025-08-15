@@ -1,0 +1,26 @@
+meta {
+  name: home expired token
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{HOST}}
+  body: none
+  auth: none
+}
+
+headers {
+  access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Imlnb3IiLCJpYXQiOjE3NTUxNTU5NDcsImV4cCI6MTc1NTE1NjA0N30.mv_T-1ODlpl-lqBN-eT3Jyq3eGNDkklYwXsZi6SGD0s
+}
+
+tests {
+  test("should login request OK", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+   
+}
+
+settings {
+  encodeUrl: true
+}
